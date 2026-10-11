@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flakship Store — متجر الفلاجشيب</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            orange: '#FF6A00',
+                            dark: '#121212',
+                            card: '#1E1E1E',
+                            lightBg: '#FAF8F5'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Google Fonts & FontAwesome -->
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { font-family: 'Cairo', sans-serif; }
+    </style>
+</head>
+<body class="bg-brand-lightBg dark:bg-brand-dark text-gray-900 dark:text-gray-100 min-h-screen transition-colors duration-300 flex flex-col justify-between">
+
+    <header class="w-full bg-brand-orange text-white text-center py-1.5 text-xs font-semibold tracking-wide shadow-md">
+        <span id="dev-credit">تصميم وتطوير: حازم سند © 2026</span>
+    </header>
+
+    <nav class="sticky top-0 z-50 backdrop-blur-md bg-white/80 dark:bg-brand-dark/80 border-b border-gray-200 dark:border-gray-800 px-4 py-3 shadow-sm">
+        <div class="max-w-7xl mx-auto flex items-center justify-between gap-3">
+            <!-- Logo / Profile -->
+            <div class="flex items-center gap-2 cursor-pointer" onclick="switchView('home')">
+                <div class="w-10 h-10 rounded-full bg-brand-orange text-white font-bold flex items-center justify-center shadow-lg text-lg">
+                    F
+                </div>
+            </div>
+
+            <!-- Search Box -->
+            <div class="flex-1 max-w-md relative">
+                <i class="fa-solid fa-search absolute right-3.5 top-3.5 text-gray-400 text-sm"></i>
+                <input type="text" id="search-input" oninput="handleSearch(this.value)" placeholder="ابحث عن هاتف أو منتج..." class="w-full bg-gray-100 dark:bg-brand-card border border-transparent focus:border-brand-orange rounded-full py-2.5 pr-10 pl-4 text-sm focus:outline-none transition">
+            </div>
+
+            <!-- Actions (Language, Theme, Cart, Admin) -->
+            <div class="flex items-center gap-2 sm:gap-3">
+                <button onclick="toggleLang()" class="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-800 transition text-sm font-semibold" title="تغيير اللغة">
+                    <i class="fa-solid fa-language text-lg"></i>
+                </button>
+                <button onclick="toggleTheme()" class="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-800 transition" title="تبديل المظهر">
+                    <i id="theme-icon" class="fa-solid fa-moon text-lg"></i>
+                </button>
+                <button onclick="openCart()" class="relative p-2.5 rounded-full bg-gray-100 dark:bg-brand-card hover:bg-brand-orange hover:text-white transition shadow-inner">
+                    <i class="fa-solid fa-bag-shopping"></i>
+                    <span id="cart-badge" class="absolute -top-1 -right-1 bg-brand-orange text-white text-[10px] w-5 h-5 rounded-full flex items-center justify-center font-bold">0</span>
+                </button>
+                <button onclick="switchView('admin')" class="bg-gray-900 text-white dark:bg-gray-700 px-3.5 py-2 rounded-full text-xs font-bold hover:bg-gray-800 transition flex items-center gap-1.5">
+                    <i class="fa-solid fa-gauge-high"></i>
+                    <span class="hidden sm:inline">لوحة التحكم</span>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <main class="max-w-7xl mx-auto px-4 py-6 flex-1 w-full space-y-8">
+        
+        <!-- HOME VIEW -->
+        <div id="view-home" class="space-y-8">
+            <!-- Hero Section -->
+            <section class="relative rounded-3xl overflow-hidden bg-gradient-to-br from-gray-900 via-gray-800 to-black text-white p-6 sm:p-12 shadow-2xl border border-gray-800">
+                <div class="absolute inset-0 opacity-40 bg-cover bg-center" style="background-image: url('https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?q=80&w=1000&auto=format&fit=crop');"></div>
+                <div class="relative z-10 max-w-xl space-y-4">
+                    <span class="inline-block px-3 py-1 bg-brand-orange/20 border border-brand-orange text-brand-orange rounded-full text-xs font-semibold tracking-wider">Flakship Store</span>
+                    <h1 id="hero-title" class="text-3xl sm:text-5xl font-black leading-tight">هواتف رائدة، بأسعار صادقة.</h1>
+                    <p id="hero-desc" class="text-gray-300 text-sm sm:text-base">هواتف جديدة ومستعملة معتمدة، مفحوصة وجاهزة للشحن الفوري لكل محافظات مصر.</p>
+                    <div class="flex flex-wrap gap-3 pt-2">
+                        <button onclick="scrollToProducts()" class="bg-brand-orange hover:bg-orange-600 text-white font-bold px-6 py-3 rounded-full transition shadow-lg flex items-center gap-2 text-sm">
+                            <span id="hero-btn-shop">تسوق الآن</span>
+                            <i class="fa-solid fa-arrow-left"></i>
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Trust Indicators -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div class="bg-white dark:bg-brand-card p-4 rounded-2xl border border-gray-200 dark:border-gray-800 flex items-center gap-4 shadow-sm">
+                    <div class="w-12 h-12 rounded-xl bg-orange-500/10 text-brand-orange flex items-center justify-center text-xl">
+                        <i class="fa-solid fa-shield-halved"></i>
+                    </div>
+                    <div>
+                        <h3 id="trust-1-title" class="font-bold text-sm">كل جهاز مفحوص بدقة</h3>
+                        <p id="trust-1-desc" class="text-gray-500 dark:text-gray-400 text-xs">ضمان حقيقي وفحص شامل بنسبة 100%.</p>
+                    </div>
+                </div>
+                <div class="bg-white dark:bg-brand-card p-4 rounded-2xl border border-gray-200 dark:border-gray-800 flex items-center gap-4 shadow-sm">
+                    <div class="w-12 h-12 rounded-xl bg-orange-500/10 text-brand-orange flex items-center justify-center text-xl">
+                        <i class="fa-solid fa-truck-fast"></i>
+                    </div>
+                    <div>
+                        <h3 id="trust-2-title" class="font-bold text-sm">توصيل سريع لكل مصر</h3>
+                        <p id="trust-2-desc" class="text-gray-500 dark:text-gray-400 text-xs">شحن آمن ومتابعة لحظية لطلبك.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Categories Grid -->
+            <section class="space-y-4">
+                <h2 id="categories-heading" class="text-xl font-bold tracking-tight">الأقسام</h2>
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                    <div onclick="filterCategory('smartphones')" class="bg-white dark:bg-brand-card p-6 rounded-3xl border border-gray-200 dark:border-gray-800 text-center cursor-pointer hover:border-brand-orange transition group shadow-sm">
+                        <div class="w-16 h-16 mx-auto mb-3 bg-orange-500/10 rounded-2xl flex items-center justify-center text-brand-orange text-2xl group-hover:scale-110 transition">
+                            <i class="fa-solid fa-mobile-screen-button"></i>
+                        </div>
+                        <span class="font-semibold text-sm">Smartphones</span>
+                    </div>
+                    <div onclick="filterCategory('tablets')" class="bg-white dark:bg-brand-card p-6 rounded-3xl border border-gray-200 dark:border-gray-800 text-center cursor-pointer hover:border-brand-orange transition group shadow-sm">
+                        <div class="w-16 h-16 mx-auto mb-3 bg-orange-500/10 rounded-2xl flex items-center justify-center text-brand-orange text-2xl group-hover:scale-110 transition">
+                            <i class="fa-solid fa-tablet-screen-button"></i>
+                        </div>
+                        <span class="font-semibold text-sm">Tablets</span>
+                    </div>
+                    <div onclick="filterCategory('smartwatches')" class="bg-white dark:bg-brand-card p-6 rounded-3xl border border-gray-200 dark:border-gray-800 text-center cursor-pointer hover:border-brand-orange transition group shadow-sm">
+                        <div class="w-16 h-16 mx-auto mb-3 bg-orange-500/10 rounded-2xl flex items-center justify-center text-brand-orange text-2xl group-hover:scale-110 transition">
+                            <i class="fa-solid fa-clock"></i>
+                        </div>
+                        <span class="font-semibold text-sm">Smartwatches</span>
+                    </div>
+                    <div onclick="filterCategory('accessories')" class="bg-white dark:bg-brand-card p-6 rounded-3xl border border-gray-200 dark:border-gray-800 text-center cursor-pointer hover:border-brand-orange transition group shadow-sm">
+                        <div class="w-16 h-16 mx-auto mb-3 bg-orange-500/10 rounded-2xl flex items-center justify-center text-brand-orange text-2xl group-hover:scale-110 transition">
+                            <i class="fa-solid fa-headphones"></i>
+                        </div>
+                        <span class="font-semibold text-sm">Accessories</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Brand Pills -->
+            <section class="space-y-3">
+                <h2 id="brands-heading" class="text-xl font-bold tracking-tight">الماركات</h2>
+                <div class="flex flex-wrap gap-2.5">
+                    <button onclick="filterBrand('all')" class="px-5 py-2 rounded-full bg-brand-orange text-white text-xs font-bold transition shadow">الكل</button>
+                    <button onclick="filterBrand('Apple')" class="px-5 py-2 rounded-full bg-white dark:bg-brand-card border border-gray-200 dark:border-gray-800 text-xs font-bold hover:border-brand-orange transition shadow-sm">Apple</button>
+                    <button onclick="filterBrand('Samsung')" class="px-5 py-2 rounded-full bg-white dark:bg-brand-card border border-gray-200 dark:border-gray-800 text-xs font-bold hover:border-brand-orange transition shadow-sm">Samsung</button>
+                    <button onclick="filterBrand('Google')" class="px-5 py-2 rounded-full bg-white dark:bg-brand-card border border-gray-200 dark:border-gray-800 text-xs font-bold hover:border-brand-orange transition shadow-sm">Google</button>
+                    <button onclick="filterBrand('Xiaomi')" class="px-5 py-2 rounded-full bg-white dark:bg-brand-card border border-gray-200 dark:border-gray-800 text-xs font-bold hover:border-brand-orange transition shadow-sm">Xiaomi</button>
+                    <button onclick="filterBrand('OnePlus')" class="px-5 py-2 rounded-full bg-white dark:bg-brand-card border border-gray-200 dark:border-gray-800 text-xs font-bold hover:border-brand-orange transition shadow-sm">OnePlus</button>
+                </div>
+            </section>
+
+            <!-- Products Grid -->
+            <section id="products-section" class="space-y-4">
+                <div class="flex items-center justify-between">
+                    <h2 id="featured-heading" class="text-xl font-bold tracking-tight">منتجات مميزة</h2>
+                    <span onclick="filterBrand('all')" class="text-brand-orange font-semibold text-xs cursor-pointer hover:underline">عرض الكل</span>
+                </div>
+                <div id="products-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <!-- Populated via JS -->
+                </div>
+            </section>
+        </div>
+
+        <!-- ADMIN VIEW -->
+        <div id="view-admin" class="hidden space-y-8">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white dark:bg-brand-card p-6 rounded-3xl shadow-sm border border-gray-200 dark:border-gray-800">
+                <div>
+                    <h1 class="text-2xl font-black">لوحة التحكم الإدارية</h1>
+                    <p class="text-sm text-gray-500">إدارة المنتجات، الأسعار، والإعدادات بسهولة تامة.</p>
+                </div>
+                <div class="flex gap-2">
+                    <button onclick="switchView('home')" class="px-4 py-2 rounded-xl bg-gray-100 dark:bg-gray-700 text-xs font-bold transition">العودة للمتجر</button>
+                    <button onclick="openAddProductModal()" class="px-4 py-2 rounded-xl bg-brand-orange text-white text-xs font-bold transition shadow">إضافة منتج</button>
+                </div>
+            </div>
+
+            <!-- Admin Products Table -->
+            <div class="bg-white dark:bg-brand-card rounded-3xl shadow-sm border border-gray-200 dark:border-gray-800 p-6 overflow-x-auto">
+                <h2 class="text-lg font-bold mb-4">قائمة المنتجات الحالية</h2>
+                <table class="w-full text-right border-collapse">
+                    <thead>
+                        <tr class="border-b border-gray-200 dark:border-gray-800 text-xs font-bold text-gray-400">
+                            <th class="p-3">المنتج</th>
+                            <th class="p-3">الماركة</th>
+                            <th class="p-3">السعر</th>
+                            <th class="p-3">الإجراءات</th>
+                        </tr>
+                    </thead>
+                    <tbody id="admin-products-table">
+                        <!-- Populated via JS -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </main>
+
+    <div id="cart-drawer" class="fixed inset-0 z-50 overflow-hidden hidden">
+        <div class="absolute inset-0 bg-black/50 backdrop-blur-sm transition-opacity" onclick="closeCart()"></div>
+        <div class="absolute inset-y-0 end-0 max-w-full flex">
+            <div class="w-screen max-w-md bg-white dark:bg-brand-card shadow-2xl flex flex-col justify-between">
+                <div class="p-6 border-b border-gray-200 dark:border-gray-800 flex items-center justify-between">
+                    <h2 class="text-lg font-black flex items-center gap-2">
+                        <i class="fa-solid fa-bag-shopping text-brand-orange"></i>
+                        <span>سلة المشتريات</span>
+                    </h2>
+                    <button onclick="closeCart()" class="p-2 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-800"><i class="fa-solid fa-xmark"></i></button>
+                </div>
+                <div id="cart-items-list" class="flex-1 overflow-y-auto p-6 space-y-4">
+                    <!-- Cart items -->
+                </div>
+                <div class="p-6 border-t border-gray-200 dark:border-gray-800 space-y-4 bg-gray-50 dark:bg-gray-900/50">
+                    <div class="flex justify-between font-black text-lg">
+                        <span>الإجمالي:</span>
+                        <span id="cart-total" class="text-brand-orange">0 ج.م</span>
+                    </div>
+                    <button onclick="openCheckout()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3.5 rounded-2xl shadow-lg transition flex items-center justify-center gap-2 text-sm">
+                        <i class="fa-brands fa-whatsapp text-xl"></i>
+                        <span>إتمام الطلب عبر واتساب</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Checkout Modal -->
+    <div id="checkout-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 overflow-y-auto hidden">
+        <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" onclick="closeCheckout()"></div>
+        <div class="relative bg-white dark:bg-brand-card w-full max-w-lg rounded-3xl shadow-2xl p-6 sm:p-8 space-y-6 z-10">
+            <div class="flex items-center justify-between border-b border-gray-200 dark:border-gray-800 pb-4">
+                <h3 class="text-xl font-black">بيانات الشحن والتوصيل</h3>
+                <button onclick="closeCheckout()" class="p-2 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-800"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <form onsubmit="submitWhatsAppOrder(event)" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-bold text-gray-500 mb-1">الاسم الكامل *</label>
+                    <input type="text" id="order-name" required class="w-full bg-gray-100 dark:bg-gray-900 border-none rounded-2xl p-3 text-sm focus:ring-2 focus:ring-brand-orange" placeholder="أحمد محمد">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-gray-500 mb-1">رقم الهاتف (واتساب) *</label>
+                    <input type="tel" id="order-phone" required class="w-full bg-gray-100 dark:bg-gray-900 border-none rounded-2xl p-3 text-sm focus:ring-2 focus:ring-brand-orange" placeholder="010xxxxxxxx">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-gray-500 mb-1">العنوان بالتفصيل *</label>
+                    <textarea id="order-address" required rows="2" class="w-full bg-gray-100 dark:bg-gray-900 border-none rounded-2xl p-3 text-sm focus:ring-2 focus:ring-brand-orange" placeholder="المدينة، الحي، اسم الشارع، رقم العمارة"></textarea>
+                </div>
+                <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-4 rounded-2xl shadow-lg transition flex items-center justify-center gap-2 text-base">
+                    <i class="fa-brands fa-whatsapp text-2xl"></i>
+                    <span>إرسال الطلب الآن عبر واتساب</span>
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Admin Add Product Modal -->
+    <div id="product-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 overflow-y-auto hidden">
+        <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" onclick="closeAddProductModal()"></div>
+        <div class="relative bg-white dark:bg-brand-card w-full max-w-lg rounded-3xl shadow-2xl p-6 sm:p-8 space-y-6 z-10">
+            <div class="flex items-center justify-between border-b border-gray-200 dark:border-gray-800 pb-4">
+                <h3 class="text-xl font-black">إضافة منتج جديد</h3>
+                <button onclick="closeAddProductModal()" class="p-2 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-800"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <form onsubmit="saveProduct(event)" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-bold text-gray-500 mb-1">اسم الهاتف / المنتج *</label>
+                    <input type="text" id="p-name" required class="w-full bg-gray-100 dark:bg-gray-900 border-none rounded-2xl p-3 text-sm" placeholder="iPhone 16 Pro">
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold text-gray-500 mb-1">الماركة *</label>
+                        <select id="p-brand" class="w-full bg-gray-100 dark:bg-gray-900 border-none rounded-2xl p-3 text-sm">
+                            <option value="Apple">Apple</option>
+                            <option value="Samsung">Samsung</option>
+                            <option value="Google">Google</option>
+                            <option value="Xiaomi">Xiaomi</option>
+                            <option value="OnePlus">OnePlus</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-500 mb-1">السعر (ج.م) *</label>
+                        <input type="number" id="p-price" required class="w-full bg-gray-100 dark:bg-gray-900 border-none rounded-2xl p-3 text-sm" placeholder="55000">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-gray-500 mb-1">رابط الصورة (URL) *</label>
+                    <input type="url" id="p-image" required class="w-full bg-gray-100 dark:bg-gray-900 border-none rounded-2xl p-3 text-sm" placeholder="https://images.unsplash.com/...">
+                </div>
+                <button type="submit" class="w-full bg-brand-orange hover:bg-orange-600 text-white font-bold py-3.5 rounded-2xl shadow-lg transition text-sm">حفظ ونشر المنتج</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-white dark:bg-brand-card border-t border-gray-200 dark:border-gray-800 py-6 text-center text-xs text-gray-500 mt-12">
+        <p>Flakship Store — جميع الحقوق محفوظة © 2026</p>
+        <p class="mt-1">صُمم ونفذ بواسطة حازم سند</p>
+    </footer>
+
+    <script>
+        // State Management & LocalStorage Persistence
+        let products = JSON.parse(localStorage.getItem('flakship_products')) || [
+            { id: 1, name: "ايفون ١٦ برو ماكس", enName: "iPhone 16 Pro Max", category: "smartphones", brand: "Apple", price: 68500, oldPrice: 72000, discount: "5%", isNew: true, image: "https://images.unsplash.com/photo-1695048133142-1a20484d2569?q=80&w=500&auto=format&fit=crop" },
+            { id: 2, name: "ابل سيريس ١٠", enName: "Apple Watch Series 10", category: "smartwatches", brand: "Apple", price: 19500, oldPrice: 20100, discount: "3%", isNew: true, image: "https://images.unsplash.com/photo-1508685096489-7aacd43bd3b1?q=80&w=500&auto=format&fit=crop" },
+            { id: 3, name: "سامسونج جالاكسي اس ٢٤ ألترا", enName: "Samsung Galaxy S24 Ultra", category: "smartphones", brand: "Samsung", price: 54000, oldPrice: 65000, discount: "17%", isNew: false, image: "https://images.unsplash.com/photo-1610945265064-0e34e5519bbf?q=80&w=500&auto=format&fit=crop" },
+            { id: 4, name: "جوجل بيكسل 9 برو", enName: "Google Pixel 9 Pro", category: "smartphones", brand: "Google", price: 46000, oldPrice: 49000, discount: "6%", isNew: true, image: "https://images.unsplash.com/photo-1598327105666-5b89351aff97?q=80&w=500&auto=format&fit=crop" }
+        ];
+
+        let cart = JSON.parse(localStorage.getItem('flakship_cart')) || [];
+        let currentLang = 'ar';
+        let currentTheme = 'dark';
+        let currentBrand = 'all';
+        let currentCategory = 'all';
+
+        const storeWhatsAppNumber = "201012345678"; // Replace with actual owner WhatsApp
+
+        window.onload = function() {
+            renderProducts(products);
+            updateCartUI();
+            renderAdminTable();
+        };
+
+        // View Router
+        function switchView(viewName) {
+            document.getElementById('view-home').classList.add('hidden');
+            document.getElementById('view-admin').classList.add('hidden');
+
+            if (viewName === 'home') document.getElementById('view-home').classList.remove('hidden');
+            if (viewName === 'admin') {
+                document.getElementById('view-admin').classList.remove('hidden');
+                renderAdminTable();
+            }
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Render Products Grid
+        function renderProducts(items) {
+            const grid = document.getElementById('products-grid');
+            if (items.length === 0) {
+                grid.innerHTML = `<div class="col-span-full py-12 text-center text-gray-400 font-bold">لا توجد منتجات مطابقة للبحث.</div>`;
+                return;
+            }
+            grid.innerHTML = items.map(p => `
+                <div class="bg-white dark:bg-brand-card rounded-3xl p-4 border border-gray-200 dark:border-gray-800 flex flex-col justify-between shadow-sm hover:shadow-md transition group">
+                    <div class="relative rounded-2xl overflow-hidden bg-gray-100 dark:bg-gray-900 mb-4 h-56 flex items-center justify-center">
+                        <img src="${p.image}" alt="${p.name}" class="object-cover h-full w-full group-hover:scale-105 transition duration-500" onerror="this.src='https://placehold.co/500x500/1e1e1e/ffffff?text=Flakship'">
+                        <div class="absolute top-3 right-3 flex flex-col gap-1 items-end">
+                            ${p.discount ? `<span class="bg-red-500 text-white text-[10px] font-bold px-2.5 py-1 rounded-full shadow">خصم ${p.discount}</span>` : ''}
+                            ${p.isNew ? `<span class="bg-emerald-500 text-white text-[10px] font-bold px-2.5 py-1 rounded-full shadow">جديد</span>` : ''}
+                        </div>
+                    </div>
+                    <div class="space-y-2 mb-4">
+                        <span class="text-xs text-brand-orange font-semibold">${p.brand}</span>
+                        <h3 class="font-bold text-base leading-snug">${currentLang === 'ar' ? p.name : (p.enName || p.name)}</h3>
+                        <div class="flex items-baseline gap-2">
+                            <span class="font-black text-lg text-brand-orange">${p.price.toLocaleString()} ج.م</span>
+                            ${p.oldPrice ? `<span class="text-xs text-gray-400 line-through">${p.oldPrice.toLocaleString()} ج.م</span>` : ''}
+                        </div>
+                    </div>
+                    <button onclick="addToCart(${p.id})" class="w-full bg-orange-500/10 hover:bg-brand-orange text-brand-orange hover:text-white font-bold py-2.5 rounded-2xl transition flex items-center justify-center gap-2 text-sm">
+                        <i class="fa-solid fa-plus"></i>
+                        <span>إضافة للسلة</span>
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        // Filtering Logic
+        function filterCategory(cat) {
+            currentCategory = cat;
+            applyFilters();
+        }
+
+        function filterBrand(brand) {
+            currentBrand = brand;
+            applyFilters();
+        }
+
+        function handleSearch(query) {
+            const q = query.toLowerCase();
+            const filtered = products.filter(p => p.name.toLowerCase().includes(q) || p.brand.toLowerCase().includes(q));
+            renderProducts(filtered);
+        }
+
+        function applyFilters() {
+            let filtered = products;
+            if (currentCategory !== 'all') {
+                filtered = filtered.filter(p => p.category === currentCategory);
+            }
+            if (currentBrand !== 'all') {
+                filtered = filtered.filter(p => p.brand === currentBrand);
+            }
+            renderProducts(filtered);
+        }
+
+        // Cart Management
+        function addToCart(id) {
+            const product = products.find(p => p.id === id);
+            if (!product) return;
+            const existing = cart.find(item => item.id === id);
+            if (existing) {
+                existing.qty += 1;
+            } else {
+                cart.push({ ...product, qty: 1 });
+            }
+            localStorage.setItem('flakship_cart', JSON.stringify(cart));
+            updateCartUI();
+            openCart();
+        }
+
+        function updateQty(id, delta) {
+            const item = cart.find(i => i.id === id);
+            if (!item) return;
+            item.qty += delta;
+            if (item.qty <= 0) {
+                cart = cart.filter(i => i.id !== id);
+            }
+            localStorage.setItem('flakship_cart', JSON.stringify(cart));
+            updateCartUI();
+        }
+
+        function updateCartUI() {
+            const badge = document.getElementById('cart-badge');
+            const totalCount = cart.reduce((acc, item) => acc + item.qty, 0);
+            badge.innerText = totalCount;
+
+            const list = document.getElementById('cart-items-list');
+            if (cart.length === 0) {
+                list.innerHTML = `<div class="py-12 text-center text-gray-400 font-bold">سلة المشتريات فارغة</div>`;
+                document.getElementById('cart-total').innerText = '0 ج.م';
+                return;
+            }
+
+            let subtotal = 0;
+            list.innerHTML = cart.map(item => {
+                subtotal += item.price * item.qty;
+                return `
+                    <div class="flex items-center gap-4 bg-gray-50 dark:bg-gray-900 p-3 rounded-2xl border border-gray-200 dark:border-gray-800">
+                        <img src="${item.image}" class="w-16 h-16 rounded-xl object-cover">
+                        <div class="flex-1">
+                            <h4 class="font-bold text-sm">${item.name}</h4>
+                            <span class="text-brand-orange font-bold text-xs">${item.price.toLocaleString()} ج.م</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <button onclick="updateQty(${item.id}, -1)" class="w-7 h-7 bg-white dark:bg-brand-card rounded-lg font-bold shadow">-</button>
+                            <span class="text-sm font-bold w-4 text-center">${item.qty}</span>
+                            <button onclick="updateQty(${item.id}, 1)" class="w-7 h-7 bg-white dark:bg-brand-card rounded-lg font-bold shadow">+</button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            document.getElementById('cart-total').innerText = subtotal.toLocaleString() + ' ج.م';
+        }
+
+        function openCart() {
+            document.getElementById('cart-drawer').classList.remove('hidden');
+        }
+
+        function closeCart() {
+            document.getElementById('cart-drawer').classList.add('hidden');
+        }
+
+        function openCheckout() {
+            if (cart.length === 0) {
+                alert('سلة المشتريات فارغة!');
+                return;
+            }
+            closeCart();
+            document.getElementById('checkout-modal').classList.remove('hidden');
+        }
+
+        function closeCheckout() {
+            document.getElementById('checkout-modal').classList.add('hidden');
+        }
+
+        // WhatsApp Checkout
+        function submitWhatsAppOrder(e) {
+            e.preventDefault();
+            const name = document.getElementById('order-name').value;
+            const phone = document.getElementById('order-phone').value;
+            const address = document.getElementById('order-address').value;
+
+            const orderRef = 'FLK-' + Math.floor(100000 + Math.random() * 900000);
+            let subtotal = cart.reduce((acc, i) => acc + (i.price * i.qty), 0);
+
+            let msg = `🛒 *طلب جديد عبر Flakship Store*\n`;
+            msg += `🔖 *رقم الطلب:* ${orderRef}\n\n`;
+            msg += `👤 *العميل:* ${name}\n`;
+            msg += `📱 *الهاتف:* ${phone}\n`;
+            msg += `📍 *العنوان:* ${address}\n\n`;
+            msg += `📦 *المنتجات المطلوبة:*\n`;
+            cart.forEach((i, idx) => {
+                msg += `${idx + 1}. ${i.name} (×${i.qty}) - ${(i.price * i.qty).toLocaleString()} ج.م\n`;
+            });
+            msg += `\n🌟 *الإجمالي النهائي:* ${subtotal.toLocaleString()} ج.م`;
+
+            const whatsappUrl = `https://wa.me/${storeWhatsAppNumber}?text=${encodeURIComponent(msg)}`;
+            
+            cart = [];
+            localStorage.removeItem('flakship_cart');
+            updateCartUI();
+            closeCheckout();
+
+            window.open(whatsappUrl, '_blank');
+        }
+
+        // Admin Functions
+        function renderAdminTable() {
+            const tbody = document.getElementById('admin-products-table');
+            tbody.innerHTML = products.map(p => `
+                <tr class="border-b border-gray-200 dark:border-gray-800 text-sm">
+                    <td class="p-3 flex items-center gap-3">
+                        <img src="${p.image}" class="w-10 h-10 rounded-xl object-cover">
+                        <span class="font-bold">${p.name}</span>
+                    </td>
+                    <td class="p-3">${p.brand}</td>
+                    <td class="p-3 font-bold text-brand-orange">${p.price.toLocaleString()} ج.م</td>
+                    <td class="p-3">
+                        <button onclick="deleteProduct(${p.id})" class="bg-red-500/10 text-red-500 px-3 py-1.5 rounded-xl font-bold text-xs hover:bg-red-500 hover:text-white transition">حذف</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function openAddProductModal() {
+            document.getElementById('product-modal').classList.remove('hidden');
+        }
+
+        function closeAddProductModal() {
+            document.getElementById('product-modal').classList.add('hidden');
+        }
+
+        function saveProduct(e) {
+            e.preventDefault();
+            const name = document.getElementById('p-name').value;
+            const brand = document.getElementById('p-brand').value;
+            const price = parseFloat(document.getElementById('p-price').value);
+            const image = document.getElementById('p-image').value;
+
+            const newProduct = {
+                id: Date.now(),
+                name,
+                category: 'smartphones',
+                brand,
+                price,
+                isNew: true,
+                image
+            };
+
+            products.unshift(newProduct);
+            localStorage.setItem('flakship_products', JSON.stringify(products));
+            renderProducts(products);
+            renderAdminTable();
+            closeAddProductModal();
+        }
+
+        function deleteProduct(id) {
+            products = products.filter(p => p.id !== id);
+            localStorage.setItem('flakship_products', JSON.stringify(products));
+            renderProducts(products);
+            renderAdminTable();
+        }
+
+        // Theme & Language Switchers
+        function toggleTheme() {
+            const html = document.documentElement;
+            const icon = document.getElementById('theme-icon');
+            if (html.classList.contains('dark')) {
+                html.classList.remove('dark');
+                icon.className = "fa-solid fa-sun text-lg";
+                currentTheme = 'light';
+            } else {
+                html.classList.add('dark');
+                icon.className = "fa-solid fa-moon text-lg";
+                currentTheme = 'dark';
+            }
+        }
+
+        function toggleLang() {
+            const html = document.documentElement;
+            if (currentLang === 'ar') {
+                currentLang = 'en';
+                html.setAttribute('dir', 'ltr');
+                html.setAttribute('lang', 'en');
+                document.getElementById('dev-credit').innerText = "Designed & Developed by Hazem Sanad © 2026";
+                document.getElementById('hero-title').innerText = "Flagship phones, Honest prices.";
+                document.getElementById('hero-desc').innerText = "New and certified used smartphones, checked and ready to ship across Egypt.";
+                document.getElementById('hero-btn-shop').innerText = "Shop now";
+                document.getElementById('trust-1-title').innerText = "Every device inspected";
+                document.getElementById('trust-2-title').innerText = "Fast delivery across Egypt";
+                document.getElementById('categories-heading').innerText = "Categories";
+                document.getElementById('brands-heading').innerText = "Brands";
+                document.getElementById('featured-heading').innerText = "Featured Products";
+            } else {
+                currentLang = 'ar';
+                html.setAttribute('dir', 'rtl');
+                html.setAttribute('lang', 'ar');
+                document.getElementById('dev-credit').innerText = "تصميم وتطوير: حازم سند © 2026";
+                document.getElementById('hero-title').innerText = "هواتف رائدة، بأسعار صادقة.";
+                document.getElementById('hero-desc').innerText = "هواتف جديدة ومستعملة معتمدة، مفحوصة وجاهزة للشحن الفوري لكل محافظات مصر.";
+                document.getElementById('hero-btn-shop').innerText = "تسوق الآن";
+                document.getElementById('trust-1-title').innerText = "كل جهاز مفحوص بدقة";
+                document.getElementById('trust-2-title').innerText = "توصيل سريع لكل مصر";
+                document.getElementById('categories-heading').innerText = "الأقسام";
+                document.getElementById('brands-heading').innerText = "الماركات";
+                document.getElementById('featured-heading').innerText = "منتجات مميزة";
+            }
+            renderProducts(products);
+        }
+
+        function scrollToProducts() {
+            document.getElementById('products-section').scrollIntoView({ behavior: 'smooth' });
+        }
+    </script>
+</body>
+</html>

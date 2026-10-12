@@ -1,0 +1,1767 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flakship Store | متجر فلاكشيب</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#f0fdf4',
+                            100: '#dcfce7',
+                            500: '#10b981',
+                            600: '#059669',
+                            700: '#047857',
+                            900: '#064e3b',
+                        },
+                        dark: {
+                            bg: '#0f172a',
+                            card: '#1e293b',
+                            border: '#334155'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'Tajawal', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Google Fonts: Inter & Tajawal for bilingual polish -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Tajawal:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    <!-- FontAwesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Tajawal', 'Inter', sans-serif;
+        }
+        /* Custom scrollbars */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(0,0,0,0.05);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(16, 185, 129, 0.5);
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(16, 185, 129, 0.8);
+        }
+    </style>
+</head>
+<body class="bg-gray-50 dark:bg-dark-bg text-gray-900 dark:text-gray-100 min-h-full flex flex-col transition-colors duration-200">
+
+    <div id="app" class="flex flex-col min-h-screen"></div>
+
+    <!-- React 18 and Babel for in-browser JSX compilation -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+    <script type="text/babel">
+        const { useState, useEffect, useMemo } = React;
+
+        // --- TRANSLATIONS DICTIONARY ---
+        const translations = {
+            ar: {
+                storeName: "متجر فلاكشيب",
+                tagline: "أحدث الهواتف الذكية والإلكترونيات الفاخرة",
+                home: "الرئيسية",
+                products: "المنتجات",
+                categories: "الأقسام",
+                brands: "الماركات",
+                offers: "العروض",
+                searchPlaceholder: "ابحث عن هاتف، ماركة، أو مواصفات...",
+                cart: "السلة",
+                wishlist: "المفضلة",
+                compare: "المقارنة",
+                adminDashboard: "لوحة التحكم",
+                login: "تسجيل الدخول",
+                logout: "خروج",
+                allBrands: "جميع الماركات",
+                allCategories: "جميع الأقسام",
+                price: "السعر",
+                filter: "تصفية",
+                sort: "ترتيب حسب",
+                newest: "الأحدث",
+                priceLowHigh: "السعر: من الأقل للأعلى",
+                priceHighLow: "السعر: من الأعلى للأقل",
+                bestSellers: "الأكثر مبيعاً",
+                addToCart: "إضافة للسلة",
+                buyViaWhatsApp: "اطلب عبر واتساب",
+                outOfStock: "نفذت الكمية",
+                inStock: "متوفر بالمخزون",
+                warranty: "ضمان لمدة سنة",
+                freeShipping: "شحن سريع ومجاني للطلبات الكبيرة",
+                secureCheckout: "دفع آمن واستلام مضمون",
+                customerSupport: "دعم فني عالي المستوى",
+                specifications: "المواصفات التقنية",
+                variants: "الخيارات المتاحة",
+                color: "اللون",
+                storage: "التخزين",
+                ram: "الذاكرة العشوائية (RAM)",
+                quantity: "الكمية",
+                subtotal: "المجموع الفرعي",
+                deliveryFee: "مصاريف الشحن",
+                total: "المجموع الكلي",
+                checkoutTitle: "إتمام الطلب عبر واتساب",
+                customerName: "الاسم الكامل",
+                phoneNumber: "رقم الهاتف (واتساب)",
+                city: "المدينة",
+                area: "المنطقة / الحي",
+                address: "العنوان بالتفصيل",
+                notes: "ملاحظات إضافية (اختياري)",
+                sendOrderWhatsApp: "إرسال الطلب عبر واتساب الآن",
+                whatsappNotice: "ملاحظة: سيتم فتح تطبيق واتساب برسالة جاهزة تحتوي تفاصيل طلبك ورقم مرجعي فريد. يرجى الضغط على زر الإرسال في واتساب لتأكيد طلبك.",
+                orderSuccess: "تم حفظ الطلب بنجاح برقم مرجعي: ",
+                emptyCart: "سلة التسوق الخاصة بك فارغة",
+                emptyWishlist: "قائمة المفضلة فارغة",
+                emptyCompare: "لا توجد منتجات للمقارنة",
+                viewDetails: "عرض التفاصيل",
+                adminPanel: "إدارة المتجر الشاملة",
+                overview: "نظرة عامة",
+                manageProducts: "إدارة المنتجات",
+                manageOrders: "إدارة الطلبات",
+                manageCategories: "الأقسام والماركات",
+                manageDiscounts: "العروض والخصومات",
+                storeSettings: "إعدادات المتجر",
+                auditLogs: "سجل النشاطات",
+                backToStore: "العودة للمتجر",
+                save: "حفظ",
+                cancel: "إلغاء",
+                delete: "حذف",
+                edit: "تعديل",
+                addNew: "إضافة جديد",
+                status: "الحالة",
+                actions: "الإجراءات",
+                role: "الصلاحية",
+                owner: "المالك (Owner)",
+                admin: "مشرف (Admin)",
+                productManager: "مسؤول المنتجات",
+                orderManager: "مسؤول الطلبات",
+                footerAbout: "متجر فلاكشيب هو وجهتك الأولى لأحدث الهواتف الذكية والإلكترونيات العالمية بأفضل الأسعار وضمان معتمد.",
+                quickLinks: "روابط سريعة",
+                policies: "السياسات والشروط",
+                privacyPolicy: "سياسة الخصوصية",
+                termsConditions: "الشروط والأحكام",
+                returnPolicy: "سياسة الاستبدال والاسترجاع",
+                contactUs: "اتصل بنا",
+                aboutUs: "من نحن",
+                faq: "الأسئلة الشائعة",
+                rights: "جميع الحقوق محفوظة © 2026 متجر فلاكشيب (Flakship Store)."
+            },
+            en: {
+                storeName: "Flakship Store",
+                tagline: "Latest Flagship Smartphones & Premium Electronics",
+                home: "Home",
+                products: "Products",
+                categories: "Categories",
+                brands: "Brands",
+                offers: "Offers",
+                searchPlaceholder: "Search for phone, brand, or specs...",
+                cart: "Cart",
+                wishlist: "Wishlist",
+                compare: "Compare",
+                adminDashboard: "Dashboard",
+                login: "Sign In",
+                logout: "Sign Out",
+                allBrands: "All Brands",
+                allCategories: "All Categories",
+                price: "Price",
+                filter: "Filter",
+                sort: "Sort By",
+                newest: "Newest",
+                priceLowHigh: "Price: Low to High",
+                priceHighLow: "Price: High to Low",
+                bestSellers: "Best Sellers",
+                addToCart: "Add to Cart",
+                buyViaWhatsApp: "Order via WhatsApp",
+                outOfStock: "Out of Stock",
+                inStock: "In Stock",
+                warranty: "1 Year Official Warranty",
+                freeShipping: "Fast & Free Shipping on large orders",
+                secureCheckout: "Secure Ordering & Guaranteed Delivery",
+                customerSupport: "24/7 Expert Customer Support",
+                specifications: "Technical Specifications",
+                variants: "Available Options",
+                color: "Color",
+                storage: "Storage",
+                ram: "RAM",
+                quantity: "Quantity",
+                subtotal: "Subtotal",
+                deliveryFee: "Delivery Fee",
+                total: "Grand Total",
+                checkoutTitle: "WhatsApp Checkout",
+                customerName: "Full Name",
+                phoneNumber: "Phone Number (WhatsApp)",
+                city: "City",
+                area: "Area / District",
+                address: "Detailed Address",
+                notes: "Additional Notes (Optional)",
+                sendOrderWhatsApp: "Send Order via WhatsApp Now",
+                whatsappNotice: "Note: WhatsApp will open with a pre-filled message including your order items and unique reference. Please press send in WhatsApp to finalize your order.",
+                orderSuccess: "Order successfully saved with reference: ",
+                emptyCart: "Your shopping cart is empty",
+                emptyWishlist: "Your wishlist is empty",
+                emptyCompare: "No products selected for comparison",
+                viewDetails: "View Details",
+                adminPanel: "Complete Store Administration",
+                overview: "Overview",
+                manageProducts: "Products Management",
+                manageOrders: "Orders Management",
+                manageCategories: "Categories & Brands",
+                manageDiscounts: "Offers & Discounts",
+                storeSettings: "Store Settings",
+                auditLogs: "Audit Logs",
+                backToStore: "Back to Store",
+                save: "Save",
+                cancel: "Cancel",
+                delete: "Delete",
+                edit: "Edit",
+                addNew: "Add New",
+                status: "Status",
+                actions: "Actions",
+                role: "Role",
+                owner: "Owner",
+                admin: "Administrator",
+                productManager: "Product Manager",
+                orderManager: "Order Manager",
+                footerAbout: "Flakship Store is your ultimate destination for flagship smartphones and global electronics at best prices with certified warranty.",
+                quickLinks: "Quick Links",
+                policies: "Policies & Terms",
+                privacyPolicy: "Privacy Policy",
+                termsConditions: "Terms & Conditions",
+                returnPolicy: "Return & Exchange Policy",
+                contactUs: "Contact Us",
+                aboutUs: "About Us",
+                faq: "FAQ",
+                rights: "All rights reserved © 2026 Flakship Store."
+            }
+        };
+
+        // --- INITIAL SEED DATA ---
+        const initialProducts = [
+            {
+                id: "prod-1",
+                nameAr: "آبل آيفون 15 برو ماكس",
+                nameEn: "Apple iPhone 15 Pro Max",
+                brand: "Apple",
+                category: "Smartphones",
+                price: 58999,
+                originalPrice: 62999,
+                discount: 6,
+                stock: 12,
+                sku: "APL-IP15PM-256",
+                isNew: true,
+                isBestSeller: true,
+                badge: "عرض خاص",
+                rating: 4.9,
+                salesCount: 142,
+                images: [
+                    "https://placehold.co/600x600/10b981/ffffff?text=iPhone+15+Pro+Max",
+                    "https://placehold.co/600x600/0f172a/ffffff?text=iPhone+Titanium",
+                    "https://placehold.co/600x600/334155/ffffff?text=iPhone+Back"
+                ],
+                variants: {
+                    colors: ["تيتانيوم طبيعي", "تيتانيوم أسود", "تيتانيوم أبيض"],
+                    storage: ["256GB", "512GB", "1TB"],
+                    ram: ["8GB"]
+                },
+                specs: {
+                    screen: "6.7 بوصة Super Retina XDR OLED",
+                    processor: "Apple A17 Pro (3 nm)",
+                    camera: "تلقائية ثلاثية 48 ميجابكسل",
+                    battery: "4422 ملي أمبير شحن سريع"
+                },
+                descAr: "آيفون 15 برو ماكس بتصميم تيتانيوم فائق القوة، مع معالج A17 Pro الخارق للألعاب والأداء، وناموس كاميرا متطور للتصوير الاحترافي.",
+                descEn: "iPhone 15 Pro Max forged in titanium with the groundbreaking A17 Pro chip, customizable Action button, and the most powerful iPhone camera system ever."
+            },
+            {
+                id: "prod-2",
+                nameAr: "سامسونج جالاكسي إس 24 ألترا",
+                nameEn: "Samsung Galaxy S24 Ultra",
+                brand: "Samsung",
+                category: "Smartphones",
+                price: 54999,
+                originalPrice: 59999,
+                discount: 8,
+                stock: 15,
+                sku: "SAM-S24U-512",
+                isNew: true,
+                isBestSeller: true,
+                badge: "الأكثر مبيعاً",
+                rating: 4.8,
+                salesCount: 198,
+                images: [
+                    "https://placehold.co/600x600/3b82f6/ffffff?text=Galaxy+S24+Ultra",
+                    "https://placehold.co/600x600/1e293b/ffffff?text=S24+Ultra+Pen"
+                ],
+                variants: {
+                    colors: ["تيتانيوم رمادي", "تيتانيوم أسود", "تيتانيوم بنفسجي"],
+                    storage: ["256GB", "512GB", "1TB"],
+                    ram: ["12GB"]
+                },
+                specs: {
+                    screen: "6.8 بوصة Dynamic AMOLED 2X 120Hz",
+                    processor: "Snapdragon 8 Gen 3 for Galaxy",
+                    camera: "رباعية 200 ميجابكسل مع تقريب بصري",
+                    battery: "5000 ملي أمبير مع قلم S-Pen"
+                },
+                descAr: "جالاكسي إس 24 ألترا المدعوم بالذكاء الاصطناعي Galaxy AI، مع هيكل تيتانيوم متين وكاميرا مذهلة بدقة 200 ميجابكسل.",
+                descEn: "Galaxy S24 Ultra with Galaxy AI features, titanium armor, and a groundbreaking 200MP camera with ProVisual engine."
+            },
+            {
+                id: "prod-3",
+                nameAr: "شاومي 14 برو",
+                nameEn: "Xiaomi 14 Pro",
+                brand: "Xiaomi",
+                category: "Smartphones",
+                price: 36999,
+                originalPrice: 39999,
+                discount: 7,
+                stock: 8,
+                sku: "XMI-14PRO-512",
+                isNew: true,
+                isBestSeller: false,
+                badge: "جديد",
+                rating: 4.7,
+                salesCount: 85,
+                images: [
+                    "https://placehold.co/600x600/f59e0b/ffffff?text=Xiaomi+14+Pro",
+                    "https://placehold.co/600x600/064e3b/ffffff?text=Xiaomi+Leica"
+                ],
+                variants: {
+                    colors: ["أسود", "فضي", "أخضر"],
+                    storage: ["256GB", "512GB"],
+                    ram: ["12GB", "16GB"]
+                },
+                specs: {
+                    screen: "6.73 بوصة LTPO AMOLED 120Hz",
+                    processor: "Snapdragon 8 Gen 3",
+                    camera: "ثلاثية بدعدسات Leica البصرية",
+                    battery: "4880 ملي أمبير شحن 120 واط"
+                },
+                descAr: "شراكة استثنائية مع Leica لتصوير احترافي، شاشة منحنية مذهلة وأداء فائق السرعة مع شحن خارق 120 واط.",
+                descEn: "Featuring Leica Summilux optical lens, Snapdragon 8 Gen 3, and 120W HyperCharge for ultimate productivity and photography."
+            },
+            {
+                id: "prod-4",
+                nameAr: "جوجل بكسل 8 برو",
+                nameEn: "Google Pixel 8 Pro",
+                brand: "Google",
+                category: "Smartphones",
+                price: 42999,
+                originalPrice: 45999,
+                discount: 6,
+                stock: 6,
+                sku: "GOOG-P8P-256",
+                isNew: false,
+                isBestSeller: true,
+                badge: "مميز",
+                rating: 4.8,
+                salesCount: 110,
+                images: [
+                    "https://placehold.co/600x600/8b5cf6/ffffff?text=Pixel+8+Pro",
+                    "https://placehold.co/600x600/1e293b/ffffff?text=Pixel+AI"
+                ],
+                variants: {
+                    colors: ["أسود أوبسيديان", "أزرق باي", "بورسلين"],
+                    storage: ["128GB", "256GB"],
+                    ram: ["12GB"]
+                },
+                specs: {
+                    screen: "6.7 بوصة Super Actua OLED",
+                    processor: "Google Tensor G3 مع شريحة أمان",
+                    camera: "ثلاثية متطورة مع معالجة صور بالذكاء الاصطناعي",
+                    battery: "5050 ملي أمبير"
+                },
+                descAr: "هاتف جوجل الرائد مع ميزات الذكاء الاصطناعي الأقوى ونظام أندرويد الخام وتحديثات لمدة 7 سنوات.",
+                descEn: "The most powerful Pixel yet with Google Tensor G3, advanced AI photo editing, and 7 years of software updates."
+            },
+            {
+                id: "prod-5",
+                nameAr: "سماعات أبل إيربودز برو 2",
+                nameEn: "Apple AirPods Pro (2nd Gen)",
+                brand: "Apple",
+                category: "Accessories",
+                price: 9499,
+                originalPrice: 10499,
+                discount: 9,
+                stock: 25,
+                sku: "APL-APP2-WHT",
+                isNew: false,
+                isBestSeller: true,
+                badge: "عرض",
+                rating: 4.9,
+                salesCount: 310,
+                images: [
+                    "https://placehold.co/600x600/059669/ffffff?text=AirPods+Pro+2",
+                    "https://placehold.co/600x600/0f172a/ffffff?text=AirPods+Case"
+                ],
+                variants: {
+                    colors: ["أبيض"],
+                    storage: ["MagSafe Case"],
+                    ram: ["H2 Chip"]
+                },
+                specs: {
+                    screen: "غير متوفر",
+                    processor: "شريحة Apple H2 الصوتية",
+                    camera: "غير متوفر",
+                    battery: "حتى 30 ساعة مع علبة الشحن"
+                },
+                descAr: "إلغاء نشط للضجيج محسّن بضعفين، صوت مكيف غامر، وعلبة شحن محدثة مع سماعة مدمجة للبحث.",
+                descEn: "Up to 2x more Active Noise Cancellation, Adaptive Audio, and Precision Finding with MagSafe charging case."
+            },
+            {
+                id: "prod-6",
+                nameAr: "شاحن سامسونج فائق السرعة 45 واط",
+                nameEn: "Samsung 45W Super Fast Charger",
+                brand: "Samsung",
+                category: "Accessories",
+                price: 1899,
+                originalPrice: 2199,
+                discount: 13,
+                stock: 40,
+                sku: "SAM-CH45W-BLK",
+                isNew: false,
+                isBestSeller: false,
+                badge: "",
+                rating: 4.6,
+                salesCount: 155,
+                images: [
+                    "https://placehold.co/600x600/334155/ffffff?text=Samsung+45W+Charger"
+                ],
+                variants: {
+                    colors: ["أسود", "أبيض"],
+                    storage: ["مع كابل Type-C"],
+                    ram: ["45W PD"]
+                },
+                specs: {
+                    screen: "غير متوفر",
+                    processor: "حماية ذكية للحرارة",
+                    camera: "غير متوفر",
+                    battery: "طاقة خروج 45 واط"
+                },
+                descAr: "شاحن أصلي فائق السرعة متوافق مع هواتف جالاكسي والأجهزة اللوحية لشحن أسرع وأمان تام.",
+                descEn: "Super Fast Charging 2.0 max. 45W compatible with Galaxy series for lightning fast power delivery."
+            }
+        ];
+
+        const initialCategories = ["Smartphones", "Accessories", "Tablets", "Wearables", "Audio"];
+        const initialBrands = ["Apple", "Samsung", "Xiaomi", "Google", "OnePlus", "Huawei"];
+
+        const initialSettings = {
+            storeNameAr: "متجر فلاكشيب",
+            storeNameEn: "Flakship Store",
+            whatsappNumber: "201000000000",
+            whatsappMsgAr: "مرحباً متجر فلاكشيب، أرغب في إتمام الطلب التالي:\nرقم الطلب: {orderRef}\nالمبلغ الإجمالي: {total} جنيه\nالاسم: {name}\nالعنوان: {address}",
+            whatsappMsgEn: "Hello Flakship Store, I would like to place the following order:\nOrder Ref: {orderRef}\nTotal: {total} EGP\nName: {name}\nAddress: {address}",
+            phone: "+20 100 000 0000",
+            email: "support@flakshipstore.com",
+            address: "شارع التكنولوجيا، مدينة نصر، القاهرة، مصر",
+            deliveryFee: 100,
+            currency: "ج.م",
+            heroTitleAr: "اكتشف أحدث الهواتف الذكية والإلكترونيات الفاخرة",
+            heroTitleEn: "Discover the Latest Flagship Smartphones & Tech",
+            heroSubtitleAr: "ضمان أصلي 100% مع توصيل سريع لجميع المحافظات والدفع عند الاستلاستعراض أو عبر واتساب",
+            heroSubtitleEn: "100% Certified Warranty with Fast Delivery Across Egypt & WhatsApp Ordering"
+        };
+
+        const initialOrders = [
+            {
+                id: "ord-101",
+                reference: "#FLK-8492",
+                customerName: "أحمد محمود",
+                phone: "01012345678",
+                city: "القاهرة",
+                area: "المعادي",
+                address: "شارع 9 عمارة 14 شقة 3",
+                notes: "يرجى الاتصال قبل الوصول",
+                items: [
+                    { productId: "prod-1", name: "آبل آيفون 15 برو ماكس", variant: "تيتانيوم طبيعي / 256GB", price: 58999, quantity: 1 }
+                ],
+                subtotal: 58999,
+                deliveryFee: 100,
+                total: 59099,
+                status: "Awaiting WhatsApp Confirmation",
+                createdAt: "2026-06-06 14:20"
+            }
+        ];
+
+        const initialAuditLogs = [
+            { id: "log-1", admin: "Owner (أحمد)", action: "إعداد النظام الأولي لمتجر فلاكشيب", timestamp: "2026-06-01 10:00" },
+            { id: "log-2", admin: "Product Manager (محمود)", action: "إضافة منتج جديد: آيفون 15 برو ماكس", timestamp: "2026-06-02 11:30" }
+        ];
+
+        // --- MAIN APP COMPONENT ---
+        function App() {
+            const [lang, setLang] = useState(() => localStorage.getItem('flk_lang') || 'ar');
+            const [theme, setTheme] = useState(() => localStorage.getItem('flk_theme') || 'dark');
+            const [activeTab, setActiveTab] = useState('storefront');
+            const [selectedProduct, setSelectedProduct] = useState(null);
+            
+            const [products, setProducts] = useState(() => {
+                const saved = localStorage.getItem('flk_products');
+                return saved ? JSON.parse(saved) : initialProducts;
+            });
+            const [categories, setCategories] = useState(() => {
+                const saved = localStorage.getItem('flk_categories');
+                return saved ? JSON.parse(saved) : initialCategories;
+            });
+            const [brands, setBrands] = useState(() => {
+                const saved = localStorage.getItem('flk_brands');
+                return saved ? JSON.parse(saved) : initialBrands;
+            });
+            const [settings, setSettings] = useState(() => {
+                const saved = localStorage.getItem('flk_settings');
+                return saved ? JSON.parse(saved) : initialSettings;
+            });
+            const [orders, setOrders] = useState(() => {
+                const saved = localStorage.getItem('flk_orders');
+                return saved ? JSON.parse(saved) : initialOrders;
+            });
+            const [auditLogs, setAuditLogs] = useState(() => {
+                const saved = localStorage.getItem('flk_audit');
+                return saved ? JSON.parse(saved) : initialAuditLogs;
+            });
+
+            const [cart, setCart] = useState(() => {
+                const saved = localStorage.getItem('flk_cart');
+                return saved ? JSON.parse(saved) : [];
+            });
+            const [wishlist, setWishlist] = useState(() => {
+                const saved = localStorage.getItem('flk_wishlist');
+                return saved ? JSON.parse(saved) : [];
+            });
+            const [compareList, setCompareList] = useState(() => {
+                const saved = localStorage.getItem('flk_compare');
+                return saved ? JSON.parse(saved) : [];
+            });
+
+            const [adminRole, setAdminRole] = useState('Owner');
+
+            useEffect(() => {
+                localStorage.setItem('flk_lang', lang);
+                document.documentElement.setAttribute('lang', lang);
+                document.documentElement.setAttribute('dir', lang === 'ar' ? 'rtl' : 'ltr');
+            }, [lang]);
+
+            useEffect(() => {
+                localStorage.setItem('flk_theme', theme);
+                if (theme === 'dark') {
+                    document.documentElement.classList.add('dark');
+                } else {
+                    document.documentElement.classList.remove('dark');
+                }
+            }, [theme]);
+
+            useEffect(() => { localStorage.setItem('flk_products', JSON.stringify(products)); }, [products]);
+            useEffect(() => { localStorage.setItem('flk_categories', JSON.stringify(categories)); }, [categories]);
+            useEffect(() => { localStorage.setItem('flk_brands', JSON.stringify(brands)); }, [brands]);
+            useEffect(() => { localStorage.setItem('flk_settings', JSON.stringify(settings)); }, [settings]);
+            useEffect(() => { localStorage.setItem('flk_orders', JSON.stringify(orders)); }, [orders]);
+            useEffect(() => { localStorage.setItem('flk_audit', JSON.stringify(auditLogs)); }, [auditLogs]);
+            useEffect(() => { localStorage.setItem('flk_cart', JSON.stringify(cart)); }, [cart]);
+            useEffect(() => { localStorage.setItem('flk_wishlist', JSON.stringify(wishlist)); }, [wishlist]);
+            useEffect(() => { localStorage.setItem('flk_compare', JSON.stringify(compareList)); }, [compareList]);
+
+            const t = translations[lang];
+
+            return (
+                <div className={`min-h-screen flex flex-col ${lang === 'ar' ? "font-['Tajawal']" : "font-['Inter']"}`}>
+                    {/* Top Announcement Bar */}
+                    <div className="bg-emerald-600 dark:bg-emerald-900 text-white text-xs sm:text-sm py-2 px-4 text-center font-medium shadow-inner flex justify-center items-center gap-4">
+                        <span><i className="fa-solid fa-truck-fast ml-2"></i> {t.freeShipping}</span>
+                        <span className="hidden md:inline">|</span>
+                        <span className="hidden md:inline"><i className="fa-solid fa-shield-halved ml-2"></i> {t.warranty}</span>
+                    </div>
+
+                    {/* Navbar */}
+                    <header className="sticky top-0 z-40 bg-white/90 dark:bg-dark-card/90 backdrop-blur-md border-b border-gray-200 dark:border-dark-border shadow-sm">
+                        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between gap-4">
+                            {/* Logo */}
+                            <div className="flex items-center gap-3 cursor-pointer" onClick={() => setActiveTab('storefront')}>
+                                <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-emerald-600 to-teal-400 flex items-center justify-center text-white text-2xl font-black shadow-lg shadow-emerald-500/30">
+                                    <i className="fa-solid fa-mobile-screen-button"></i>
+                                </div>
+                                <div>
+                                    <h1 className="text-xl sm:text-2xl font-black tracking-tight text-gray-900 dark:text-white">
+                                        {lang === 'ar' ? settings.storeNameAr : settings.storeNameEn}
+                                    </h1>
+                                    <p className="text-xs text-emerald-600 dark:text-emerald-400 font-semibold">{t.tagline.substring(0, 35)}...</p>
+                                </div>
+                            </div>
+
+                            {/* Center Navigation & Search (Desktop) */}
+                            <nav className="hidden lg:flex items-center gap-6 font-medium text-sm">
+                                <button onClick={() => setActiveTab('storefront')} className={`hover:text-emerald-600 transition ${activeTab === 'storefront' ? 'text-emerald-600 font-bold' : ''}`}>{t.home}</button>
+                                <button onClick={() => setActiveTab('storefront')} className="hover:text-emerald-600 transition">{t.products}</button>
+                                <button onClick={() => setActiveTab('offers')} className="hover:text-emerald-600 transition flex items-center gap-1 text-red-500 font-bold"><i className="fa-solid fa-fire"></i> {t.offers}</button>
+                            </nav>
+
+                            {/* Actions */}
+                            <div className="flex items-center gap-2 sm:gap-3">
+                                <button onClick={() => setActiveTab('compare')} title={t.compare} className="relative p-2.5 rounded-xl hover:bg-gray-100 dark:hover:bg-dark-border text-gray-700 dark:text-gray-300 transition">
+                                    <i className="fa-solid fa-code-compare text-lg"></i>
+                                    {compareList.length > 0 && (
+                                        <span className="absolute -top-1 -right-1 bg-blue-500 text-white text-[10px] w-5 h-5 rounded-full flex items-center justify-center font-bold">
+                                            {compareList.length}
+                                        </span>
+                                    )}
+                                </button>
+
+                                <button onClick={() => setActiveTab('wishlist')} title={t.wishlist} className="relative p-2.5 rounded-xl hover:bg-gray-100 dark:hover:bg-dark-border text-gray-700 dark:text-gray-300 transition">
+                                    <i className="fa-regular fa-heart text-lg"></i>
+                                    {wishlist.length > 0 && (
+                                        <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] w-5 h-5 rounded-full flex items-center justify-center font-bold">
+                                            {wishlist.length}
+                                        </span>
+                                    )}
+                                </button>
+
+                                <button onClick={() => setActiveTab('cart')} title={t.cart} className="relative p-2.5 rounded-xl bg-emerald-50 dark:bg-emerald-950/50 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-100 transition flex items-center gap-2 px-3">
+                                    <i className="fa-solid fa-cart-shopping text-lg"></i>
+                                    <span className="font-bold text-sm hidden sm:inline">{cart.reduce((acc, item) => acc + item.quantity, 0)}</span>
+                                </button>
+
+                                <button onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')} className="p-2.5 rounded-xl hover:bg-gray-100 dark:hover:bg-dark-border text-gray-700 dark:text-gray-300 transition">
+                                    <i className={`fa-solid ${theme === 'dark' ? 'fa-sun text-yellow-400' : 'fa-moon text-indigo-600'} text-lg`}></i>
+                                </button>
+
+                                <button onClick={() => setLang(lang === 'ar' ? 'en' : 'ar')} className="px-3 py-1.5 rounded-xl border border-gray-200 dark:border-dark-border text-xs font-bold hover:bg-gray-100 dark:hover:bg-dark-border transition">
+                                    {lang === 'ar' ? 'English' : 'العربية'}
+                                </button>
+
+                                <button onClick={() => setActiveTab('admin')} className="px-4 py-2 rounded-xl bg-gray-900 dark:bg-emerald-600 text-white font-bold text-xs sm:text-sm hover:opacity-90 transition shadow-md flex items-center gap-2">
+                                    <i className="fa-solid fa-gauge-high"></i>
+                                    <span className="hidden md:inline">{t.adminDashboard}</span>
+                                </button>
+                            </div>
+                        </div>
+                    </header>
+
+                    {/* Main Content Router */}
+                    <main className="flex-grow">
+                        {activeTab === 'storefront' && (
+                            <Storefront 
+                                products={products} 
+                                categories={categories} 
+                                brands={brands} 
+                                settings={settings}
+                                lang={lang} 
+                                t={t} 
+                                setSelectedProduct={setSelectedProduct}
+                                setActiveTab={setActiveTab}
+                                cart={cart}
+                                setCart={setCart}
+                                wishlist={wishlist}
+                                setWishlist={setWishlist}
+                                compareList={compareList}
+                                setCompareList={setCompareList}
+                            />
+                        )}
+
+                        {activeTab === 'productDetail' && selectedProduct && (
+                            <ProductDetail 
+                                product={selectedProduct} 
+                                lang={lang} 
+                                t={t} 
+                                setActiveTab={setActiveTab} 
+                                cart={cart} 
+                                setCart={setCart}
+                                wishlist={wishlist}
+                                setWishlist={setWishlist}
+                                settings={settings}
+                            />
+                        )}
+
+                        {activeTab === 'cart' && (
+                            <CartView 
+                                cart={cart} 
+                                setCart={setCart} 
+                                lang={lang} 
+                                t={t} 
+                                settings={settings} 
+                                setActiveTab={setActiveTab}
+                                orders={orders}
+                                setOrders={setOrders}
+                            />
+                        )}
+
+                        {activeTab === 'wishlist' && (
+                            <WishlistView 
+                                wishlist={wishlist} 
+                                setWishlist={setWishlist} 
+                                products={products} 
+                                lang={lang} 
+                                t={t} 
+                                setSelectedProduct={setSelectedProduct} 
+                                setActiveTab={setActiveTab}
+                                cart={cart}
+                                setCart={setCart}
+                            />
+                        )}
+
+                        {activeTab === 'compare' && (
+                            <CompareView 
+                                compareList={compareList} 
+                                setCompareList={setCompareList} 
+                                products={products} 
+                                lang={lang} 
+                                t={t} 
+                                setSelectedProduct={setSelectedProduct}
+                                setActiveTab={setActiveTab}
+                            />
+                        )}
+
+                        {activeTab === 'admin' && (
+                            <AdminDashboard 
+                                products={products} 
+                                setProducts={setProducts} 
+                                categories={categories} 
+                                setCategories={setCategories} 
+                                brands={brands} 
+                                setBrands={setBrands} 
+                                settings={settings} 
+                                setSettings={setSettings} 
+                                orders={orders} 
+                                setOrders={setOrders} 
+                                auditLogs={auditLogs} 
+                                setAuditLogs={setAuditLogs}
+                                adminRole={adminRole}
+                                setAdminRole={setAdminRole}
+                                lang={lang} 
+                                t={t} 
+                                setActiveTab={setActiveTab}
+                            />
+                        )}
+                    </main>
+
+                    {/* Footer */}
+                    <footer className="bg-white dark:bg-dark-card border-t border-gray-200 dark:border-dark-border mt-16 pt-12 pb-8">
+                        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-4 gap-8 mb-12">
+                            <div>
+                                <div className="flex items-center gap-3 mb-4">
+                                    <div className="w-10 h-10 rounded-xl bg-emerald-600 flex items-center justify-center text-white font-bold text-xl">
+                                        <i className="fa-solid fa-mobile-screen-button"></i>
+                                    </div>
+                                    <span className="text-lg font-black">{lang === 'ar' ? settings.storeNameAr : settings.storeNameEn}</span>
+                                </div>
+                                <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed mb-4">
+                                    {t.footerAbout}
+                                </p>
+                                <div className="flex items-center gap-3 text-emerald-600 dark:text-emerald-400 text-lg">
+                                    <a href="#" className="w-10 h-10 rounded-xl bg-gray-100 dark:bg-dark-border flex items-center justify-center hover:bg-emerald-600 hover:text-white transition"><i className="fa-brands fa-whatsapp"></i></a>
+                                    <a href="#" className="w-10 h-10 rounded-xl bg-gray-100 dark:bg-dark-border flex items-center justify-center hover:bg-emerald-600 hover:text-white transition"><i className="fa-brands fa-instagram"></i></a>
+                                    <a href="#" className="w-10 h-10 rounded-xl bg-gray-100 dark:bg-dark-border flex items-center justify-center hover:bg-emerald-600 hover:text-white transition"><i className="fa-brands fa-facebook"></i></a>
+                                    <a href="#" className="w-10 h-10 rounded-xl bg-gray-100 dark:bg-dark-border flex items-center justify-center hover:bg-emerald-600 hover:text-white transition"><i className="fa-brands fa-telegram"></i></a>
+                                </div>
+                            </div>
+                            <div>
+                                <h4 className="font-bold text-base mb-4 text-gray-900 dark:text-white">{t.quickLinks}</h4>
+                                <ul className="space-y-2.5 text-sm text-gray-600 dark:text-gray-400">
+                                    <li><button onClick={() => setActiveTab('storefront')} className="hover:text-emerald-600 transition">{t.home}</button></li>
+                                    <li><button onClick={() => setActiveTab('storefront')} className="hover:text-emerald-600 transition">{t.products}</button></li>
+                                    <li><button onClick={() => setActiveTab('offers')} className="hover:text-emerald-600 transition">{t.offers}</button></li>
+                                    <li><button onClick={() => setActiveTab('wishlist')} className="hover:text-emerald-600 transition">{t.wishlist}</button></li>
+                                </ul>
+                            </div>
+                            <div>
+                                <h4 className="font-bold text-base mb-4 text-gray-900 dark:text-white">{t.policies}</h4>
+                                <ul className="space-y-2.5 text-sm text-gray-600 dark:text-gray-400">
+                                    <li><a href="#" className="hover:text-emerald-600 transition">{t.privacyPolicy}</a></li>
+                                    <li><a href="#" className="hover:text-emerald-600 transition">{t.termsConditions}</a></li>
+                                    <li><a href="#" className="hover:text-emerald-600 transition">{t.returnPolicy}</a></li>
+                                    <li><a href="#" className="hover:text-emerald-600 transition">{t.faq}</a></li>
+                                </ul>
+                            </div>
+                            <div>
+                                <h4 className="font-bold text-base mb-4 text-gray-900 dark:text-white">{t.contactUs}</h4>
+                                <ul className="space-y-3 text-sm text-gray-600 dark:text-gray-400">
+                                    <li className="flex items-center gap-3"><i className="fa-solid fa-phone text-emerald-600"></i> {settings.phone}</li>
+                                    <li className="flex items-center gap-3"><i className="fa-solid fa-envelope text-emerald-600"></i> {settings.email}</li>
+                                    <li className="flex items-start gap-3"><i className="fa-solid fa-location-dot text-emerald-600 mt-1"></i> {settings.address}</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 border-t border-gray-100 dark:border-dark-border text-center text-sm text-gray-500">
+                            <p>{t.rights}</p>
+                        </div>
+                    </footer>
+                </div>
+            );
+        }
+
+        // --- STOREFRONT COMPONENT ---
+        function Storefront({ products, categories, brands, settings, lang, t, setSelectedProduct, setActiveTab, cart, setCart, wishlist, setWishlist, compareList, setCompareList }) {
+            const [searchQuery, setSearchQuery] = useState('');
+            const [selectedBrand, setSelectedBrand] = useState('All');
+            const [selectedCategory, setSelectedCategory] = useState('All');
+            const [sortBy, setSortBy] = useState('newest');
+            const [maxPrice, setMaxPrice] = useState(70000);
+
+            const filteredProducts = useMemo(() => {
+                return products.filter(p => {
+                    const matchesSearch = p.nameAr.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                                          p.nameEn.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                                          p.brand.toLowerCase().includes(searchQuery.toLowerCase());
+                    const matchesBrand = selectedBrand === 'All' || p.brand === selectedBrand;
+                    const matchesCategory = selectedCategory === 'All' || p.category === selectedCategory;
+                    const matchesPrice = p.price <= maxPrice;
+                    return matchesSearch && matchesBrand && matchesCategory && matchesPrice;
+                }).sort((a, b) => {
+                    if (sortBy === 'newest') return b.id.localeCompare(a.id);
+                    if (sortBy === 'priceLow') return a.price - b.price;
+                    if (sortBy === 'priceHigh') return b.price - a.price;
+                    if (sortBy === 'bestSeller') return b.salesCount - a.salesCount;
+                    return 0;
+                });
+            }, [products, searchQuery, selectedBrand, selectedCategory, maxPrice, sortBy]);
+
+            const toggleWishlist = (productId) => {
+                if (wishlist.includes(productId)) {
+                    setWishlist(wishlist.filter(id => id !== productId));
+                } else {
+                    setWishlist([...wishlist, productId]);
+                }
+            };
+
+            const toggleCompare = (productId) => {
+                if (compareList.includes(productId)) {
+                    setCompareList(compareList.filter(id => id !== productId));
+                } else {
+                    if (compareList.length >= 3) {
+                        alert(lang === 'ar' ? 'يمكنك مقارنة 3 منتجات كحد أقصى' : 'You can compare up to 3 products');
+                        return;
+                    }
+                    setCompareList([...compareList, productId]);
+                }
+            };
+
+            const addToCartQuick = (product) => {
+                const defaultVariant = `${product.variants.colors[0]} / ${product.variants.storage[0]}`;
+                const existing = cart.find(item => item.productId === product.id && item.variant === defaultVariant);
+                if (existing) {
+                    setCart(cart.map(item => item.productId === product.id && item.variant === defaultVariant ? {...item, quantity: item.quantity + 1} : item));
+                } else {
+                    setCart([...cart, {
+                        id: `${product.id}-${Date.now()}`,
+                        productId: product.id,
+                        name: lang === 'ar' ? product.nameAr : product.nameEn,
+                        price: product.price,
+                        variant: defaultVariant,
+                        image: product.images[0],
+                        quantity: 1
+                    }]);
+                }
+            };
+
+            return (
+                <div className="space-y-12">
+                    {/* Hero Banner Section */}
+                    <section className="relative bg-gradient-to-r from-gray-900 via-emerald-950 to-gray-900 text-white overflow-hidden py-20 px-4 sm:px-6 lg:px-8">
+                        <div className="absolute inset-0 opacity-20 bg-[radial-gradient(#10b981_1px,transparent_1px)] [background-size:16px_16px]"></div>
+                        <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-12 items-center relative z-10">
+                            <div className="space-y-6 text-center lg:text-start">
+                                <span className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-500/20 text-emerald-400 text-xs font-bold border border-emerald-500/30">
+                                    <i className="fa-solid fa-bolt"></i> {lang === 'ar' ? 'تشكيلة 2026 الحصرية' : 'Exclusive 2026 Collection'}
+                                </span>
+                                <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black tracking-tight leading-tight">
+                                    {lang === 'ar' ? settings.heroTitleAr : settings.heroTitleEn}
+                                </h1>
+                                <p className="text-gray-300 text-base sm:text-lg max-w-xl mx-auto lg:mx-0">
+                                    {lang === 'ar' ? settings.heroSubtitleAr : settings.heroSubtitleEn}
+                                </p>
+                                <div className="flex flex-wrap gap-4 justify-center lg:justify-start pt-4">
+                                    <a href="#products-section" className="px-8 py-4 rounded-2xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold shadow-lg shadow-emerald-600/30 transition flex items-center gap-2">
+                                        <i className="fa-solid fa-bag-shopping"></i> {lang === 'ar' ? 'تسوق الأجهزة الآن' : 'Shop Devices Now'}
+                                    </a>
+                                    <button onClick={() => setActiveTab('admin')} className="px-8 py-4 rounded-2xl bg-white/10 hover:bg-white/20 text-white font-bold backdrop-blur-md transition border border-white/20">
+                                        <i className="fa-solid fa-gauge-high ml-2"></i> {t.adminDashboard}
+                                    </button>
+                                </div>
+                            </div>
+                            <div className="relative flex justify-center">
+                                <div className="w-72 sm:w-96 h-72 sm:h-96 rounded-full bg-emerald-500/20 blur-3xl absolute"></div>
+                                <img src="https://placehold.co/500x500/059669/ffffff?text=Flakship+Store+Flagships" alt="Flagship Phones" className="relative rounded-3xl shadow-2xl border border-white/10 max-w-full h-auto object-cover" />
+                            </div>
+                        </div>
+                    </section>
+
+                    {/* Brands Quick Selector */}
+                    <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                        <div className="flex items-center justify-between mb-6">
+                            <h3 className="text-xl font-bold">{lang === 'ar' ? 'الماركات العالمية' : 'Featured Brands'}</h3>
+                        </div>
+                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-4">
+                            <button onClick={() => setSelectedBrand('All')} className={`p-4 rounded-2xl border transition flex flex-col items-center justify-center gap-2 ${selectedBrand === 'All' ? 'bg-emerald-600 text-white border-emerald-600 shadow-md' : 'bg-white dark:bg-dark-card border-gray-200 dark:border-dark-border hover:border-emerald-500'}`}>
+                                <i className="fa-solid fa-globe text-2xl"></i>
+                                <span className="font-bold text-sm">{t.allBrands}</span>
+                            </button>
+                            {brands.map(brand => (
+                                <button key={brand} onClick={() => setSelectedBrand(brand)} className={`p-4 rounded-2xl border transition flex flex-col items-center justify-center gap-2 ${selectedBrand === brand ? 'bg-emerald-600 text-white border-emerald-600 shadow-md' : 'bg-white dark:bg-dark-card border-gray-200 dark:border-dark-border hover:border-emerald-500'}`}>
+                                    <i className="fa-solid fa-mobile text-2xl"></i>
+                                    <span className="font-bold text-sm">{brand}</span>
+                                </button>
+                            ))}
+                        </div>
+                    </section>
+
+                    {/* Main Products Section */}
+                    <section id="products-section" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                        <div className="flex flex-col md:flex-row gap-6 mb-8 items-start md:items-center justify-between bg-white dark:bg-dark-card p-6 rounded-3xl border border-gray-200 dark:border-dark-border shadow-sm">
+                            <div className="relative flex-1 w-full">
+                                <i className="fa-solid fa-magnifying-glass absolute top-1/2 -translate-y-1/2 right-4 text-gray-400"></i>
+                                <input 
+                                    type="text" 
+                                    value={searchQuery}
+                                    onChange={(e) => setSearchQuery(e.target.value)}
+                                    placeholder={t.searchPlaceholder}
+                                    className="w-full bg-gray-50 dark:bg-dark-bg border border-gray-200 dark:border-dark-border rounded-2xl py-3 pr-12 pl-4 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                                />
+                            </div>
+
+                            <div className="flex flex-wrap gap-2 w-full md:w-auto">
+                                <select 
+                                    value={selectedCategory} 
+                                    onChange={(e) => setSelectedCategory(e.target.value)}
+                                    className="bg-gray-50 dark:bg-dark-bg border border-gray-200 dark:border-dark-border rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                                >
+                                    <option value="All">{t.allCategories}</option>
+                                    {categories.map(cat => <option key={cat} value={cat}>{cat}</option>)}
+                                </select>
+
+                                <select 
+                                    value={sortBy} 
+                                    onChange={(e) => setSortBy(e.target.value)}
+                                    className="bg-gray-50 dark:bg-dark-bg border border-gray-200 dark:border-dark-border rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                                >
+                                    <option value="newest">{t.newest}</option>
+                                    <option value="priceLow">{t.priceLowHigh}</option>
+                                    <option value="priceHigh">{t.priceHighLow}</option>
+                                    <option value="bestSeller">{t.bestSellers}</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        {filteredProducts.length === 0 ? (
+                            <div className="text-center py-20 bg-white dark:bg-dark-card rounded-3xl border border-gray-200 dark:border-dark-border">
+                                <i className="fa-solid fa-box-open text-5xl text-gray-400 mb-4"></i>
+                                <h3 className="text-xl font-bold mb-2">{lang === 'ar' ? 'لا توجد منتجات مطابقة لبحثك' : 'No products found'}</h3>
+                                <p className="text-gray-500 text-sm">جرب تغيير كلمات البحث أو إزالة بعض الفلاتر.</p>
+                            </div>
+                        ) : (
+                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                                {filteredProducts.map(product => (
+                                    <div key={product.id} className="group bg-white dark:bg-dark-card rounded-3xl border border-gray-200 dark:border-dark-border overflow-hidden hover:shadow-xl transition flex flex-col justify-between">
+                                        <div>
+                                            <div className="relative bg-gray-100 dark:bg-dark-bg h-64 overflow-hidden cursor-pointer" onClick={() => { setSelectedProduct(product); setActiveTab('productDetail'); }}>
+                                                {product.badge && (
+                                                    <span className="absolute top-4 right-4 z-10 bg-emerald-600 text-white text-xs font-bold px-3 py-1 rounded-full shadow-md">
+                                                        {product.badge}
+                                                    </span>
+                                                )}
+                                                <div className="absolute top-4 left-4 z-10 flex flex-col gap-2">
+                                                    <button onClick={(e) => { e.stopPropagation(); toggleWishlist(product.id); }} className={`w-9 h-9 rounded-full bg-white dark:bg-dark-card shadow-md flex items-center justify-center transition ${wishlist.includes(product.id) ? 'text-red-500' : 'text-gray-400 hover:text-red-500'}`}>
+                                                        <i className="fa-solid fa-heart"></i>
+                                                    </button>
+                                                    <button onClick={(e) => { e.stopPropagation(); toggleCompare(product.id); }} className={`w-9 h-9 rounded-full bg-white dark:bg-dark-card shadow-md flex items-center justify-center transition ${compareList.includes(product.id) ? 'text-blue-500' : 'text-gray-400 hover:text-blue-500'}`} title="مقارنة">
+                                                        <i className="fa-solid fa-code-compare"></i>
+                                                    </button>
+                                                </div>
+                                                <img 
+                                                    src={product.images[0]} 
+                                                    alt={lang === 'ar' ? product.nameAr : product.nameEn} 
+                                                    className="w-full h-full object-cover group-hover:scale-105 transition duration-500"
+                                                    onError={(e) => { e.target.src = 'https://placehold.co/600x600/10b981/ffffff?text=Flakship'; }}
+                                                />
+                                            </div>
+
+                                            <div className="p-6">
+                                                <div className="flex items-center justify-between text-xs text-emerald-600 dark:text-emerald-400 font-bold mb-2">
+                                                    <span>{product.brand}</span>
+                                                    <span><i className="fa-solid fa-star text-yellow-400 ml-1"></i> {product.rating} ({product.salesCount})</span>
+                                                </div>
+                                                <h3 className="font-bold text-lg mb-3 line-clamp-1 cursor-pointer hover:text-emerald-600 transition" onClick={() => { setSelectedProduct(product); setActiveTab('productDetail'); }}>
+                                                    {lang === 'ar' ? product.nameAr : product.nameEn}
+                                                </h3>
+                                                <div className="flex items-baseline gap-2 mb-4">
+                                                    <span className="text-2xl font-black text-emerald-600 dark:text-emerald-400">{product.price.toLocaleString()} {settings.currency}</span>
+                                                    {product.originalPrice > product.price && (
+                                                        <span className="text-sm text-gray-400 line-through">{product.originalPrice.toLocaleString()}</span>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div className="p-6 pt-0 flex items-center gap-3">
+                                            <button 
+                                                onClick={() => { setSelectedProduct(product); setActiveTab('productDetail'); }}
+                                                className="flex-1 py-3 rounded-xl border border-gray-200 dark:border-dark-border text-xs font-bold hover:bg-gray-50 dark:hover:bg-dark-border transition"
+                                            >
+                                                {t.viewDetails}
+                                            </button>
+                                            <button 
+                                                onClick={() => addToCartQuick(product)}
+                                                className="flex-1 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold shadow-lg shadow-emerald-600/20 transition flex items-center justify-center gap-2"
+                                            >
+                                                <i className="fa-solid fa-cart-plus"></i> {t.addToCart}
+                                            </button>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+                    </section>
+                </div>
+            );
+        }
+
+        // --- PRODUCT DETAIL COMPONENT ---
+        function ProductDetail({ product, lang, t, setActiveTab, cart, setCart, wishlist, setWishlist, settings }) {
+            const [selectedImage, setSelectedImage] = useState(product.images[0]);
+            const [selectedColor, setSelectedColor] = useState(product.variants.colors[0]);
+            const [selectedStorage, setSelectedStorage] = useState(product.variants.storage[0]);
+            const [quantity, setQuantity] = useState(1);
+
+            const handleAddToCart = () => {
+                const variantString = `${selectedColor} / ${selectedStorage}`;
+                const existing = cart.find(item => item.productId === product.id && item.variant === variantString);
+                if (existing) {
+                    setCart(cart.map(item => item.productId === product.id && item.variant === variantString ? {...item, quantity: item.quantity + quantity} : item));
+                } else {
+                    setCart([...cart, {
+                        id: `${product.id}-${Date.now()}`,
+                        productId: product.id,
+                        name: lang === 'ar' ? product.nameAr : product.nameEn,
+                        price: product.price,
+                        variant: variantString,
+                        image: selectedImage,
+                        quantity: quantity
+                    }]);
+                }
+                setActiveTab('cart');
+            };
+
+            return (
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+                    <div className="flex items-center gap-2 text-sm text-gray-500 mb-8">
+                        <button onClick={() => setActiveTab('storefront')} className="hover:text-emerald-600">{t.home}</button>
+                        <span>/</span>
+                        <span>{product.brand}</span>
+                        <span>/</span>
+                        <span className="text-emerald-600 font-bold">{lang === 'ar' ? product.nameAr : product.nameEn}</span>
+                    </div>
+
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 bg-white dark:bg-dark-card p-8 rounded-3xl border border-gray-200 dark:border-dark-border shadow-sm">
+                        <div className="space-y-4">
+                            <div className="w-full h-96 sm:h-[450px] bg-gray-100 dark:bg-dark-bg rounded-2xl overflow-hidden border border-gray-200 dark:border-dark-border flex items-center justify-center">
+                                <img src={selectedImage} alt="Product" className="w-full h-full object-cover" />
+                            </div>
+                            <div className="flex gap-4 overflow-x-auto pb-2">
+                                {product.images.map((img, idx) => (
+                                    <button 
+                                        key={idx} 
+                                        onClick={() => setSelectedImage(img)}
+                                        className={`w-20 h-20 rounded-xl overflow-hidden border-2 transition flex-shrink-0 ${selectedImage === img ? 'border-emerald-600 scale-105' : 'border-gray-200 dark:border-dark-border opacity-70'}`}
+                                    >
+                                        <img src={img} alt="Thumbnail" className="w-full h-full object-cover" />
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+
+                        <div className="space-y-6">
+                            <div>
+                                <div className="flex items-center justify-between mb-2">
+                                    <span className="px-3 py-1 rounded-full bg-emerald-50 dark:bg-emerald-950/50 text-emerald-600 dark:text-emerald-400 text-xs font-bold">{product.brand}</span>
+                                    <span className="text-sm font-semibold text-gray-500">SKU: {product.sku}</span>
+                                </div>
+                                <h1 className="text-3xl font-black mb-3">{lang === 'ar' ? product.nameAr : product.nameEn}</h1>
+                                <div className="flex items-center gap-4">
+                                    <div className="flex items-center text-yellow-400 text-sm">
+                                        <i className="fa-solid fa-star"></i>
+                                        <span className="font-bold mr-1 text-gray-900 dark:text-white">{product.rating}</span>
+                                        <span className="text-gray-400 text-xs">({product.salesCount} تقييم)</span>
+                                    </div>
+                                    <span className={`text-xs font-bold px-3 py-1 rounded-full ${product.stock > 0 ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-700'}`}>
+                                        {product.stock > 0 ? t.inStock : t.outOfStock}
+                                    </span>
+                                </div>
+                            </div>
+
+                            <div className="flex items-baseline gap-4 py-4 border-y border-gray-100 dark:border-dark-border">
+                                <span className="text-3xl font-black text-emerald-600 dark:text-emerald-400">{product.price.toLocaleString()} {settings.currency}</span>
+                                {product.originalPrice > product.price && (
+                                    <span className="text-lg text-gray-400 line-through">{product.originalPrice.toLocaleString()} {settings.currency}</span>
+                                )}
+                            </div>
+
+                            <p className="text-gray-600 dark:text-gray-300 text-sm leading-relaxed">
+                                {lang === 'ar' ? product.descAr : product.descEn}
+                            </p>
+
+                            <div>
+                                <label className="block text-sm font-bold mb-2">{t.color}: <span className="text-emerald-600">{selectedColor}</span></label>
+                                <div className="flex flex-wrap gap-3">
+                                    {product.variants.colors.map(col => (
+                                        <button 
+                                            key={col}
+                                            onClick={() => setSelectedColor(col)}
+                                            className={`px-4 py-2 rounded-xl text-xs font-bold border transition ${selectedColor === col ? 'bg-emerald-600 text-white border-emerald-600 shadow-md' : 'bg-gray-50 dark:bg-dark-bg border-gray-200 dark:border-dark-border hover:border-emerald-500'}`}
+                                        >
+                                            {col}
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+
+                            <div>
+                                <label className="block text-sm font-bold mb-2">{t.storage}: <span className="text-emerald-600">{selectedStorage}</span></label>
+                                <div className="flex flex-wrap gap-3">
+                                    {product.variants.storage.map(stor => (
+                                        <button 
+                                            key={stor}
+                                            onClick={() => setSelectedStorage(stor)}
+                                            className={`px-4 py-2 rounded-xl text-xs font-bold border transition ${selectedStorage === stor ? 'bg-emerald-600 text-white border-emerald-600 shadow-md' : 'bg-gray-50 dark:bg-dark-bg border-gray-200 dark:border-dark-border hover:border-emerald-500'}`}
+                                        >
+                                            {stor}
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+
+                            <div className="flex items-center gap-4 pt-4">
+                                <div className="flex items-center border border-gray-200 dark:border-dark-border rounded-xl bg-gray-50 dark:bg-dark-bg">
+                                    <button onClick={() => setQuantity(Math.max(1, quantity - 1))} className="px-4 py-3 font-bold hover:text-emerald-600">-</button>
+                                    <span className="px-4 font-bold">{quantity}</span>
+                                    <button onClick={() => setQuantity(quantity + 1)} className="px-4 py-3 font-bold hover:text-emerald-600">+</button>
+                                </div>
+                                <button 
+                                    onClick={handleAddToCart}
+                                    disabled={product.stock <= 0}
+                                    className={`flex-1 py-4 rounded-2xl font-bold shadow-lg transition flex items-center justify-center gap-2 ${product.stock > 0 ? 'bg-emerald-600 hover:bg-emerald-500 text-white shadow-emerald-600/30' : 'bg-gray-300 text-gray-500 cursor-not-allowed'}`}
+                                >
+                                    <i className="fa-solid fa-cart-shopping"></i> {t.addToCart}
+                                </button>
+                            </div>
+
+                            <div className="pt-6 border-t border-gray-100 dark:border-dark-border">
+                                <h4 className="font-bold text-base mb-4">{t.specifications}</h4>
+                                <div className="grid grid-cols-2 gap-3 text-xs">
+                                    {Object.entries(product.specs).map(([key, val]) => (
+                                        <div key={key} className="bg-gray-50 dark:bg-dark-bg p-3 rounded-xl border border-gray-100 dark:border-dark-border">
+                                            <span className="text-gray-400 block mb-1 uppercase">{key}</span>
+                                            <span className="font-bold text-gray-900 dark:text-white">{val}</span>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+
+        // --- CART & WHATSAPP CHECKOUT COMPONENT ---
+        function CartView({ cart, setCart, lang, t, settings, setActiveTab, orders, setOrders }) {
+            const [customerName, setCustomerName] = useState('');
+            const [phone, setPhone] = useState('');
+            const [city, setCity] = useState('');
+            const [area, setArea] = useState('');
+            const [address, setAddress] = useState('');
+            const [notes, setNotes] = useState('');
+            const [successModal, setSuccessModal] = useState(null);
+
+            const subtotal = cart.reduce((acc, item) => acc + (item.price * item.quantity), 0);
+            const deliveryFee = cart.length > 0 ? settings.deliveryFee : 0;
+            const grandTotal = subtotal + deliveryFee;
+
+            const updateQty = (id, newQty) => {
+                if (newQty <= 0) {
+                    setCart(cart.filter(item => item.id !== id));
+                } else {
+                    setCart(cart.map(item => item.id === id ? {...item, quantity: newQty} : item));
+                }
+            };
+
+            const handleWhatsAppCheckout = (e) => {
+                e.preventDefault();
+                if (!customerName || !phone || !city || !address) {
+                    alert(lang === 'ar' ? 'يرجى إكمال الحقول الإلزامية (الاسم، الهاتف، المدينة، العنوان)' : 'Please fill all required fields');
+                    return;
+                }
+
+                const orderRef = `#FLK-${Math.floor(1000 + Math.random() * 9000)}`;
+                const newOrder = {
+                    id: `ord-${Date.now()}`,
+                    reference: orderRef,
+                    customerName,
+                    phone,
+                    city,
+                    area,
+                    address,
+                    notes,
+                    items: [...cart],
+                    subtotal,
+                    deliveryFee,
+                    total: grandTotal,
+                    status: "Awaiting WhatsApp Confirmation",
+                    createdAt: new Date().toISOString().replace('T', ' ').substring(0, 16)
+                };
+
+                setOrders([newOrder, ...orders]);
+                setSuccessModal(orderRef);
+
+                const itemsList = cart.map(i => `- ${i.name} (${i.variant}) x${i.quantity} = ${i.price * i.quantity} ${settings.currency}`).join('\n');
+                let msgTemplate = lang === 'ar' ? settings.whatsappMsgAr : settings.whatsappMsgEn;
+                msgTemplate = msgTemplate
+                    .replace('{orderRef}', orderRef)
+                    .replace('{total}', grandTotal.toLocaleString())
+                    .replace('{name}', customerName)
+                    .replace('{address}', `${city} - ${area} - ${address}`)
+                    + `\n\nالمنتجات:\n${itemsList}\n\nمصاريف الشحن: ${deliveryFee} ${settings.currency}`;
+
+                const encodedMsg = encodeURIComponent(msgTemplate);
+                const whatsappUrl = `https://wa.me/${settings.whatsappNumber}?text=${encodedMsg}`;
+
+                window.open(whatsappUrl, '_blank');
+                setCart([]);
+            };
+
+            if (cart.length === 0 && !successModal) {
+                return (
+                    <div className="max-w-7xl mx-auto px-4 py-20 text-center">
+                        <div className="w-24 h-24 rounded-full bg-emerald-50 dark:bg-emerald-950/50 text-emerald-600 flex items-center justify-center text-4xl mx-auto mb-6">
+                            <i className="fa-solid fa-cart-shopping"></i>
+                        </div>
+                        <h2 className="text-2xl font-bold mb-4">{t.emptyCart}</h2>
+                        <button onClick={() => setActiveTab('storefront')} className="px-8 py-3 bg-emerald-600 text-white font-bold rounded-2xl shadow-lg">
+                            {lang === 'ar' ? 'تسوق الأجهزة الآن' : 'Start Shopping'}
+                        </button>
+                    </div>
+                );
+            }
+
+            return (
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+                    {successModal ? (
+                        <div className="bg-white dark:bg-dark-card p-8 rounded-3xl border border-emerald-500 shadow-xl text-center max-w-xl mx-auto">
+                            <div className="w-16 h-16 rounded-full bg-emerald-100 text-emerald-600 text-3xl flex items-center justify-center mx-auto mb-4">
+                                <i className="fa-solid fa-check"></i>
+                            </div>
+                            <h2 className="text-2xl font-black mb-2">{t.orderSuccess} {successModal}</h2>
+                            <p className="text-sm text-gray-600 dark:text-gray-400 mb-6 leading-relaxed">
+                                {t.whatsappNotice}
+                            </p>
+                            <button onClick={() => { setSuccessModal(null); setActiveTab('storefront'); }} className="px-8 py-3 bg-emerald-600 text-white font-bold rounded-2xl">
+                                {t.home}
+                            </button>
+                        </div>
+                    ) : (
+                        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                            <div className="lg:col-span-2 space-y-4">
+                                <h2 className="text-2xl font-black mb-6">{t.cart}</h2>
+                                {cart.map(item => (
+                                    <div key={item.id} className="bg-white dark:bg-dark-card p-4 sm:p-6 rounded-2xl border border-gray-200 dark:border-dark-border flex items-center justify-between gap-4">
+                                        <div className="flex items-center gap-4">
+                                            <img src={item.image} alt={item.name} className="w-20 h-20 rounded-xl object-cover bg-gray-100 dark:bg-dark-bg" />
+                                            <div>
+                                                <h4 className="font-bold text-base mb-1">{item.name}</h4>
+                                                <p className="text-xs text-gray-500 mb-2">{item.variant}</p>
+                                                <span className="font-black text-emerald-600">{item.price.toLocaleString()} {settings.currency}</span>
+                                            </div>
+                                        </div>
+                                        <div className="flex items-center gap-3">
+                                            <div className="flex items-center border border-gray-200 dark:border-dark-border rounded-xl">
+                                                <button onClick={() => updateQty(item.id, item.quantity - 1)} className="px-3 py-1 font-bold">-</button>
+                                                <span className="px-3 font-bold">{item.quantity}</span>
+                                                <button onClick={() => updateQty(item.id, item.quantity + 1)} className="px-3 py-1 font-bold">+</button>
+                                            </div>
+                                            <button onClick={() => setCart(cart.filter(i => i.id !== item.id))} className="text-red-500 hover:opacity-80 p-2">
+                                                <i className="fa-solid fa-trash"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+
+                            <div className="bg-white dark:bg-dark-card p-6 rounded-3xl border border-gray-200 dark:border-dark-border h-fit space-y-6">
+                                <h3 className="text-xl font-bold border-b border-gray-100 dark:border-dark-border pb-4">{t.checkoutTitle}</h3>
+                                
+                                <form onSubmit={handleWhatsAppCheckout} className="space-y-4">
+                                    <div>
+                                        <label className="block text-xs font-bold mb-1">{t.customerName} *</label>
+                                        <input type="text" required value={customerName} onChange={(e) => setCustomerName(e.target.value)} className="w-full bg-gray-50 dark:bg-dark-bg border border-gray-200 dark:border-dark-border rounded-xl p-3 text-sm" placeholder="أحمد محمد" />
+                                    </div>
+                                    <div>
+                                        <label className="block text-xs font-bold mb-1">{t.phoneNumber} *</label>
+                                        <input type="tel" required value={phone} onChange={(e) => setPhone(e.target.value)} className="w-full bg-gray-50 dark:bg-dark-bg border border-gray-200 dark:border-dark-border rounded-xl p-3 text-sm" placeholder="01012345678" />
+                                    </div>
+                                    <div className="grid grid-cols-2 gap-3">
+                                        <div>
+                                            <label className="block text-xs font-bold mb-1">{t.city} *</label>
+                                            <input type="text" required value={city} onChange={(e) => setCity(e.target.value)} className="w-full bg-gray-50 dark:bg-dark-bg border border-gray-200 dark:border-dark-border rounded-xl p-3 text-sm" placeholder="القاهرة" />
+                                        </div>
+                                        <div>
+                                            <label className="block text-xs font-bold mb-1">{t.area} *</label>
+                                            <input type="text" required value={area} onChange={(e) => setArea(e.target.value)} className="w-full bg-gray-50 dark:bg-dark-bg border border-gray-200 dark:border-dark-border rounded-xl p-3 text-sm" placeholder="مدينة نصر" />
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <label className="block text-xs font-bold mb-1">{t.address} *</label>
+                                        <input type="text" required value={address} onChange={(e) => setAddress(e.target.value)} className="w-full bg-gray-50 dark:bg-dark-bg border border-gray-200 dark:border-dark-border rounded-xl p-3 text-sm" placeholder="اسم الشارع ورقم العمارة والشقة" />
+                                    </div>
+                                    <div>
+                                        <label className="block text-xs font-bold mb-1">{t.notes}</label>
+                                        <textarea value={notes} onChange={(e) => setNotes(e.target.value)} className="w-full bg-gray-50 dark:bg-dark-bg border border-gray-200 dark:border-dark-border rounded-xl p-3 text-sm" placeholder="ملاحظات التوصيل..."></textarea>
+                                    </div>
+
+                                    <div className="pt-4 border-t border-gray-100 dark:border-dark-border space-y-2 text-sm">
+                                        <div className="flex justify-between">
+                                            <span className="text-gray-500">{t.subtotal}</span>
+                                            <span className="font-bold">{subtotal.toLocaleString()} {settings.currency}</span>
+                                        </div>
+                                        <div className="flex justify-between">
+                                            <span className="text-gray-500">{t.deliveryFee}</span>
+                                            <span className="font-bold">{deliveryFee.toLocaleString()} {settings.currency}</span>
+                                        </div>
+                                        <div className="flex justify-between text-base font-black pt-2 border-t border-gray-100 dark:border-dark-border text-emerald-600">
+                                            <span>{t.total}</span>
+                                            <span>{grandTotal.toLocaleString()} {settings.currency}</span>
+                                        </div>
+                                    </div>
+
+                                    <button type="submit" className="w-full py-4 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-2xl shadow-lg shadow-emerald-600/30 transition flex items-center justify-center gap-2">
+                                        <i className="fa-brands fa-whatsapp text-xl"></i> {t.sendOrderWhatsApp}
+                                    </button>
+                                    <p className="text-[11px] text-gray-500 text-center leading-relaxed">
+                                        {t.whatsappNotice}
+                                    </p>
+                                </form>
+                            </div>
+                        </div>
+                    )}
+                </div>
+            );
+        }
+
+        // --- WISHLIST COMPONENT ---
+        function WishlistView({ wishlist, setWishlist, products, lang, t, setSelectedProduct, setActiveTab }) {
+            const wishlistProducts = products.filter(p => wishlist.includes(p.id));
+
+            if (wishlistProducts.length === 0) {
+                return (
+                    <div className="max-w-7xl mx-auto px-4 py-20 text-center">
+                        <div className="w-24 h-24 rounded-full bg-red-50 text-red-500 flex items-center justify-center text-4xl mx-auto mb-6">
+                            <i className="fa-solid fa-heart"></i>
+                        </div>
+                        <h2 className="text-2xl font-bold mb-4">{t.emptyWishlist}</h2>
+                        <button onClick={() => setActiveTab('storefront')} className="px-8 py-3 bg-emerald-600 text-white font-bold rounded-2xl shadow-lg">
+                            {t.home}
+                        </button>
+                    </div>
+                );
+            }
+
+            return (
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+                    <h2 className="text-2xl font-black mb-6">{t.wishlist}</h2>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                        {wishlistProducts.map(product => (
+                            <div key={product.id} className="bg-white dark:bg-dark-card rounded-3xl border border-gray-200 dark:border-dark-border p-6 flex flex-col justify-between">
+                                <div>
+                                    <div className="relative h-48 bg-gray-100 dark:bg-dark-bg rounded-2xl overflow-hidden mb-4 cursor-pointer" onClick={() => { setSelectedProduct(product); setActiveTab('productDetail'); }}>
+                                        <button onClick={(e) => { e.stopPropagation(); setWishlist(wishlist.filter(id => id !== product.id)); }} className="absolute top-3 right-3 w-8 h-8 rounded-full bg-white dark:bg-dark-card shadow text-red-500 flex items-center justify-center">
+                                            <i className="fa-solid fa-xmark"></i>
+                                        </button>
+                                        <img src={product.images[0]} alt="Product" className="w-full h-full object-cover" />
+                                    </div>
+                                    <h3 className="font-bold text-base mb-2">{lang === 'ar' ? product.nameAr : product.nameEn}</h3>
+                                    <span className="text-xl font-black text-emerald-600">{product.price.toLocaleString()} ج.م</span>
+                                </div>
+                                <button onClick={() => { setSelectedProduct(product); setActiveTab('productDetail'); }} className="mt-4 w-full py-3 bg-emerald-600 text-white font-bold rounded-xl text-xs">
+                                    {t.viewDetails}
+                                </button>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            );
+        }
+
+        // --- COMPARE VIEW COMPONENT ---
+        function CompareView({ compareList, setCompareList, products, lang, t, setSelectedProduct, setActiveTab }) {
+            const comparedProducts = products.filter(p => compareList.includes(p.id));
+
+            if (comparedProducts.length === 0) {
+                return (
+                    <div className="max-w-7xl mx-auto px-4 py-20 text-center">
+                        <div className="w-24 h-24 rounded-full bg-blue-50 text-blue-500 flex items-center justify-center text-4xl mx-auto mb-6">
+                            <i className="fa-solid fa-code-compare"></i>
+                        </div>
+                        <h2 className="text-2xl font-bold mb-4">{t.emptyCompare}</h2>
+                        <button onClick={() => setActiveTab('storefront')} className="px-8 py-3 bg-emerald-600 text-white font-bold rounded-2xl shadow-lg">
+                            {t.home}
+                        </button>
+                    </div>
+                );
+            }
+
+            return (
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+                    <h2 className="text-2xl font-black mb-6">{t.compare}</h2>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        {comparedProducts.map(product => (
+                            <div key={product.id} className="bg-white dark:bg-dark-card p-6 rounded-3xl border border-gray-200 dark:border-dark-border space-y-4">
+                                <div className="flex justify-between items-center">
+                                    <span className="text-xs font-bold text-emerald-600">{product.brand}</span>
+                                    <button onClick={() => setCompareList(compareList.filter(id => id !== product.id))} className="text-red-500">
+                                        <i className="fa-solid fa-trash"></i>
+                                    </button>
+                                </div>
+                                <img src={product.images[0]} alt="Product" className="w-full h-48 object-cover rounded-2xl bg-gray-100" />
+                                <h3 className="font-bold text-lg">{lang === 'ar' ? product.nameAr : product.nameEn}</h3>
+                                <div className="text-2xl font-black text-emerald-600">{product.price.toLocaleString()} ج.م</div>
+                                <div className="space-y-2 text-xs pt-4 border-t border-gray-100 dark:border-dark-border">
+                                    {Object.entries(product.specs).map(([key, val]) => (
+                                        <div key={key} className="flex justify-between py-1 border-b border-gray-50 dark:border-dark-border">
+                                            <span className="text-gray-400 capitalize">{key}:</span>
+                                            <span className="font-bold text-right">{val}</span>
+                                        </div>
+                                    ))}
+                                </div>
+                                <button onClick={() => { setSelectedProduct(product); setActiveTab('productDetail'); }} className="w-full py-3 bg-emerald-600 text-white font-bold rounded-xl text-xs">
+                                    {t.viewDetails}
+                                </button>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            );
+        }
+
+        // --- COMPREHENSIVE ADMIN DASHBOARD COMPONENT ---
+        function AdminDashboard({ products, setProducts, categories, setCategories, brands, setBrands, settings, setSettings, orders, setOrders, auditLogs, setAuditLogs, adminRole, setAdminRole, lang, t, setActiveTab }) {
+            const [adminTab, setAdminTab] = useState('overview');
+
+            const [editingProduct, setEditingProduct] = useState(null);
+            const [productForm, setProductForm] = useState({
+                nameAr: '', nameEn: '', brand: 'Apple', category: 'Smartphones', price: '', originalPrice: '', stock: 10, sku: '',
+                descAr: '', descEn: '', badge: '', imagesStr: 'https://placehold.co/600x600/10b981/ffffff?text=New+Phone',
+                colors: 'تيتانيوم, أسود, أبيض', storage: '256GB, 512GB', ram: '8GB', screen: '6.7 OLED', processor: 'A17 Pro', camera: '48MP', battery: '4500mAh'
+            });
+
+            const handleSaveProduct = (e) => {
+                e.preventDefault();
+                const newProd = {
+                    id: editingProduct ? editingProduct.id : `prod-${Date.now()}`,
+                    nameAr: productForm.nameAr,
+                    nameEn: productForm.nameEn,
+                    brand: productForm.brand,
+                    category: productForm.category,
+                    price: Number(productForm.price),
+                    originalPrice: Number(productForm.originalPrice || productForm.price),
+                    discount: Math.round(((productForm.originalPrice - productForm.price) / productForm.originalPrice) * 100) || 0,
+                    stock: Number(productForm.stock),
+                    sku: productForm.sku || `SKU-${Math.floor(1000+Math.random()*9000)}`,
+                    isNew: true,
+                    isBestSeller: false,
+                    badge: productForm.badge,
+                    rating: 5.0,
+                    salesCount: 0,
+                    images: productForm.imagesStr.split(',').map(s => s.trim()),
+                    variants: {
+                        colors: productForm.colors.split(',').map(s => s.trim()),
+                        storage: productForm.storage.split(',').map(s => s.trim()),
+                        ram: productForm.ram.split(',').map(s => s.trim())
+                    },
+                    specs: {
+                        screen: productForm.screen,
+                        processor: productForm.processor,
+                        camera: productForm.camera,
+                        battery: productForm.battery
+                    },
+                    descAr: productForm.descAr,
+                    descEn: productForm.descEn
+                };
+
+                if (editingProduct) {
+                    setProducts(products.map(p => p.id === editingProduct.id ? newProd : p));
+                } else {
+                    setProducts([newProd, ...products]);
+                }
+
+                setAuditLogs([{ id: `log-${Date.now()}`, admin: `${adminRole}`, action: `${editingProduct ? 'تعديل' : 'إضافة'} منتج: ${newProd.nameAr}`, timestamp: new Date().toISOString().replace('T', ' ').substring(0, 16) }, ...auditLogs]);
+                setEditingProduct(null);
+                setAdminTab('products');
+            };
+
+            const deleteProduct = (id) => {
+                if (confirm('هل أنت متأكد من حذف هذا المنتج؟')) {
+                    setProducts(products.filter(p => p.id !== id));
+                }
+            };
+
+            const updateOrderStatus = (orderId, newStatus) => {
+                setOrders(orders.map(o => o.id === orderId ? {...o, status: newStatus} : o));
+                setAuditLogs([{ id: `log-${Date.now()}`, admin: `${adminRole}`, action: `تحديث حالة الطلب ${orderId} إلى ${newStatus}`, timestamp: new Date().toISOString().replace('T', ' ').substring(0, 16) }, ...auditLogs]);
+            };
+
+            return (
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+                    <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-white dark:bg-dark-card p-6 rounded-3xl border border-gray-200 dark:border-dark-border mb-8 shadow-sm">
+                        <div className="flex items-center gap-4">
+                            <div className="w-14 h-14 rounded-2xl bg-emerald-600 text-white flex items-center justify-center text-2xl">
+                                <i className="fa-solid fa-gauge-high"></i>
+                            </div>
+                            <div>
+                                <h2 className="text-2xl font-black">{t.adminDashboard}</h2>
+                                <p className="text-xs text-emerald-600 font-bold">Flakship Store Secure Control Center</p>
+                            </div>
+                        </div>
+                        <div className="flex items-center gap-4 w-full md:w-auto">
+                            <div className="flex items-center gap-2">
+                                <span className="text-xs font-bold text-gray-400">{t.role}:</span>
+                                <select value={adminRole} onChange={(e) => setAdminRole(e.target.value)} className="bg-gray-50 dark:bg-dark-bg border border-gray-200 dark:border-dark-border rounded-xl px-3 py-2 text-xs font-bold">
+                                    <option value="Owner">{t.owner}</option>
+                                    <option value="Administrator">{t.admin}</option>
+                                    <option value="Product Manager">{t.productManager}</option>
+                                    <option value="Order Manager">{t.orderManager}</option>
+                                </select>
+                            </div>
+                            <button onClick={() => setActiveTab('storefront')} className="px-4 py-2 bg-gray-100 dark:bg-dark-border rounded-xl text-xs font-bold hover:bg-emerald-600 hover:text-white transition">
+                                {t.backToStore}
+                            </button>
+                        </div>
+                    </div>
+
+                    <div className="flex flex-wrap gap-2 mb-8 border-b border-gray-200 dark:border-dark-border pb-4">
+                        <button onClick={() => setAdminTab('overview')} className={`px-5 py-2.5 rounded-xl font-bold text-xs transition ${adminTab === 'overview' ? 'bg-emerald-600 text-white shadow-md' : 'bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border'}`}>{t.overview}</button>
+                        <button onClick={() => setAdminTab('products')} className={`px-5 py-2.5 rounded-xl font-bold text-xs transition ${adminTab === 'products' ? 'bg-emerald-600 text-white shadow-md' : 'bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border'}`}>{t.manageProducts}</button>
+                        <button onClick={() => setAdminTab('orders')} className={`px-5 py-2.5 rounded-xl font-bold text-xs transition ${adminTab === 'orders' ? 'bg-emerald-600 text-white shadow-md' : 'bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border'}`}>{t.manageOrders}</button>
+                        <button onClick={() => setAdminTab('settings')} className={`px-5 py-2.5 rounded-xl font-bold text-xs transition ${adminTab === 'settings' ? 'bg-emerald-600 text-white shadow-md' : 'bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border'}`}>{t.storeSettings}</button>
+                        <button onClick={() => setAdminTab('audit')} className={`px-5 py-2.5 rounded-xl font-bold text-xs transition ${adminTab === 'audit' ? 'bg-emerald-600 text-white shadow-md' : 'bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border'}`}>{t.auditLogs}</button>
+                    </div>
+
+                    {adminTab === 'overview' && (
+                        <div className="space-y-8">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                                <div className="bg-white dark:bg-dark-card p-6 rounded-3xl border border-gray-200 dark:border-dark-border">
+                                    <span className="text-gray-400 text-xs font-bold block mb-2">إجمالي المنتجات</span>
+                                    <span className="text-3xl font-black text-emerald-600">{products.length}</span>
+                                </div>
+                                <div className="bg-white dark:bg-dark-card p-6 rounded-3xl border border-gray-200 dark:border-dark-border">
+                                    <span className="text-gray-400 text-xs font-bold block mb-2">الطلبات الواردة</span>
+                                    <span className="text-3xl font-black text-blue-600">{orders.length}</span>
+                                </div>
+                                <div className="bg-white dark:bg-dark-card p-6 rounded-3xl border border-gray-200 dark:border-dark-border">
+                                    <span className="text-gray-400 text-xs font-bold block mb-2">إجمالي المبيعات المؤكدة</span>
+                                    <span className="text-3xl font-black text-purple-600">{orders.reduce((acc, o) => acc + o.total, 0).toLocaleString()} ج.م</span>
+                                </div>
+                                <div className="bg-white dark:bg-dark-card p-6 rounded-3xl border border-gray-200 dark:border-dark-border">
+                                    <span className="text-gray-400 text-xs font-bold block mb-2">تنبيهات المخزون المنخفض</span>
+                                    <span className="text-3xl font-black text-red-500">{products.filter(p => p.stock < 10).length}</span>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                    {adminTab === 'products' && (
+                        <div className="space-y-6">
+                            <div className="flex justify-between items-center">
+                                <h3 className="text-xl font-bold">{t.manageProducts}</h3>
+                                <button onClick={() => { setEditingProduct(null); setAdminTab('productForm'); }} className="px-5 py-2.5 bg-emerald-600 text-white font-bold rounded-xl text-xs flex items-center gap-2">
+                                    <i className="fa-solid fa-plus"></i> {t.addNew}
+                                </button>
+                            </div>
+                            <div className="bg-white dark:bg-dark-card rounded-3xl border border-gray-200 dark:border-dark-border overflow-hidden">
+                                <table className="w-full text-right text-sm">
+                                    <thead className="bg-gray-50 dark:bg-dark-bg border-b border-gray-200 dark:border-dark-border text-xs text-gray-400 uppercase">
+                                        <tr>
+                                            <th className="p-4">المنتج</th>
+                                            <th className="p-4">الماركة</th>
+                                            <th className="p-4">السعر</th>
+                                            <th className="p-4">المخزون</th>
+                                            <th className="p-4">{t.actions}</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody className="divide-y divide-gray-100 dark:divide-dark-border">
+                                        {products.map(product => (
+                                            <tr key={product.id} className="hover:bg-gray-50/50 dark:hover:bg-dark-border/50">
+                                                <td className="p-4 flex items-center gap-3">
+                                                    <img src={product.images[0]} alt="" className="w-12 h-12 rounded-xl object-cover" />
+                                                    <span className="font-bold">{product.nameAr}</span>
+                                                </td>
+                                                <td className="p-4 text-emerald-600 font-bold">{product.brand}</td>
+                                                <td className="p-4 font-bold">{product.price.toLocaleString()} ج.م</td>
+                                                <td className="p-4"><span className={`px-2.5 py-1 rounded-full text-xs font-bold ${product.stock > 5 ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-700'}`}>{product.stock}</span></td>
+                                                <td className="p-4 flex items-center gap-2">
+                                                    <button onClick={() => { setEditingProduct(product); setProductForm({...product, imagesStr: product.images.join(', '), colors: product.variants.colors.join(', '), storage: product.variants.storage.join(', '), ram: product.variants.ram.join(', ')}); setAdminTab('productForm'); }} className="p-2 bg-blue-50 text-blue-600 rounded-xl"><i className="fa-solid fa-pen"></i></button>
+                                                    <button onClick={() => deleteProduct(product.id)} className="p-2 bg-red-50 text-red-600 rounded-xl"><i className="fa-solid fa-trash"></i></button>
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    )}
+
+                    {adminTab === 'productForm' && (
+                        <div className="bg-white dark:bg-dark-card p-8 rounded-3xl border border-gray-200 dark:border-dark-border max-w-3xl mx-auto">
+                            <h3 className="text-xl font-bold mb-6">{editingProduct ? 'تعديل منتج' : 'إضافة منتج جديد'}</h3>
+                            <form onSubmit={handleSaveProduct} className="space-y-4">
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label className="block text-xs font-bold mb-1">الاسم بالعربية</label>
+                                        <input type="text" required value={productForm.nameAr} onChange={(e) => setProductForm({...productForm, nameAr: e.target.value})} className="w-full bg-gray-50 dark:bg-dark-bg border border-gray-200 dark:border-dark-border rounded-xl p-3 text-sm" />
+                                    </div>
+                                    <div>
+                                        <label className="block text-xs font-bold mb-1">الاسم بالإنجليزية</label>
+                                        <input type="text" required value={productForm.nameEn} onChange={(e) => setProductForm({...productForm, nameEn: e.target.value})} className="w-full bg-gray-50 dark:bg-dark-bg border border-gray-200 dark:border-dark-border rounded-xl p-3 text-sm" />
+                                    </div>
+                                </div>
+                                <div className="grid grid-cols-3 gap-4">
+                                    <div>
+                                        <label className="block text-xs font-bold mb-1">الماركة</label>
+                                        <select value={productForm.brand} onChange={(e) => setProductForm({...productForm, brand: e.target.value})} className="w-full bg-gray-50 dark:bg-dark-bg border border-gray-200 dark:border-dark-border rounded-xl p-3 text-sm">
+                                            {brands.map(b => <option key={b} value={b}>{b}</option>)}
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label className="block text-xs font-bold mb-1">السعر (ج.م)</label>
+                                        <input type="number" required value={productForm.price} onChange={(e) => setProductForm({...productForm, price: e.target.value})} className="w-full bg-gray-50 dark:bg-dark-bg border border-gray-200 dark:border-dark-border rounded-xl p-3 text-sm" />
+                                    </div>
+                                    <div>
+                                        <label className="block text-xs font-bold mb-1">السعر الأصلي</label>
+                                        <input type="number" value={productForm.originalPrice} onChange={(e) => setProductForm({...productForm, originalPrice: e.target.value})} className="w-full bg-gray-50 dark:bg-dark-bg border border-gray-200 dark:border-dark-border rounded-xl p-3 text-sm" />
+                                    </div>
+                                </div>
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label className="block text-xs font-bold mb-1">المخزون</label>
+                                        <input type="number" required value={productForm.stock} onChange={(e) => setProductForm({...productForm, stock: e.target.value})} className="w-full bg-gray-50 dark:bg-dark-bg border border-gray-200 dark:border-dark-border rounded-xl p-3 text-sm" />
+                                    </div>
+                                    <div>
+                                        <label className="block text-xs font-bold mb-1">روابط الصور (مفصولة بفواصل)</label>
+                                        <input type="text" required value={productForm.imagesStr} onChange={(e) => setProductForm({...productForm, imagesStr: e.target.value})} className="w-full bg-gray-50 dark:bg-dark-bg border border-gray-200 dark:border-dark-border rounded-xl p-3 text-sm" />
+                                    </div>
+                                </div>
+                                <div className="flex gap-4 pt-4">
+                                    <button type="submit" className="px-6 py-3 bg-emerald-600 text-white font-bold rounded-xl text-xs">{t.save}</button>
+                                    <button type="button" onClick={() => setAdminTab('products')} className="px-6 py-3 bg-gray-100 dark:bg-dark-border font-bold rounded-xl text-xs">{t.cancel}</button>
+                                </div>
+                            </form>
+                        </div>
+                    )}
+
+                    {adminTab === 'orders' && (
+                        <div className="space-y-6">
+                            <h3 className="text-xl font-bold">{t.manageOrders}</h3>
+                            <div className="bg-white dark:bg-dark-card rounded-3xl border border-gray-200 dark:border-dark-border overflow-hidden">
+                                <table className="w-full text-right text-sm">
+                                    <thead className="bg-gray-50 dark:bg-dark-bg border-b border-gray-200 dark:border-dark-border text-xs text-gray-400 uppercase">
+                                        <tr>
+                                            <th className="p-4">رقم الطلب</th>
+                                            <th className="p-4">العميل</th>
+                                            <th className="p-4">الهاتف</th>
+                                            <th className="p-4">العنوان</th>
+                                            <th className="p-4">الإجمالي</th>
+                                            <th className="p-4">الحالة</th>
+                                            <th className="p-4">التاريخ</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody className="divide-y divide-gray-100 dark:divide-dark-border">
+                                        {orders.map(order => (
+                                            <tr key={order.id} className="hover:bg-gray-50/50">
+                                                <td className="p-4 font-bold text-emerald-600">{order.reference}</td>
+                                                <td className="p-4 font-bold">{order.customerName}</td>
+                                                <td className="p-4">{order.phone}</td>
+                                                <td className="p-4 text-xs">{order.city} - {order.area}</td>
+                                                <td className="p-4 font-black">{order.total.toLocaleString()} ج.م</td>
+                                                <td className="p-4">
+                                                    <select value={order.status} onChange={(e) => updateOrderStatus(order.id, e.target.value)} className="bg-gray-50 dark:bg-dark-bg border border-gray-200 rounded-lg p-2 text-xs font-bold text-emerald-600">
+                                                        <option value="Awaiting WhatsApp Confirmation">Awaiting WhatsApp</option>
+                                                        <option value="Confirmed">Confirmed</option>
+                                                        <option value="Processing">Processing</option>
+                                                        <option value="Shipped">Shipped</option>
+                                                        <option value="Delivered">Delivered</option>
+                                                        <option value="Cancelled">Cancelled</option>
+                                                    </select>
+                                                </td>
+                                                <td className="p-4 text-xs text-gray-400">{order.createdAt}</td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    )}
+
+                    {adminTab === 'settings' && (
+                        <div className="bg-white dark:bg-dark-card p-8 rounded-3xl border border-gray-200 dark:border-dark-border max-w-2xl mx-auto space-y-6">
+                            <h3 className="text-xl font-bold">{t.storeSettings}</h3>
+                            <div className="space-y-4">
+                                <div>
+                                    <label className="block text-xs font-bold mb-1">رقم واتساب للطلبات (بدون +)</label>
+                                    <input type="text" value={settings.whatsappNumber} onChange={(e) => setSettings({...settings, whatsappNumber: e.target.value})} className="w-full bg-gray-50 dark:bg-dark-bg border border-gray-200 rounded-xl p-3 text-sm" />
+                                </div>
+                                <div>
+                                    <label className="block text-xs font-bold mb-1">مصاريف الشحن الافتراضية (ج.م)</label>
+                                    <input type="number" value={settings.deliveryFee} onChange={(e) => setSettings({...settings, deliveryFee: Number(e.target.value)})} className="w-full bg-gray-50 dark:bg-dark-bg border border-gray-200 rounded-xl p-3 text-sm" />
+                                </div>
+                                <div>
+                                    <label className="block text-xs font-bold mb-1">عنوان المتجر</label>
+                                    <input type="text" value={settings.address} onChange={(e) => setSettings({...settings, address: e.target.value})} className="w-full bg-gray-50 dark:bg-dark-bg border border-gray-200 rounded-xl p-3 text-sm" />
+                                </div>
+                                <button onClick={() => alert('تم حفظ الإعدادات بنجاح!')} className="px-6 py-3 bg-emerald-600 text-white font-bold rounded-xl text-xs">
+                                    {t.save}
+                                </button>
+                            </div>
+                        </div>
+                    )}
+
+                    {adminTab === 'audit' && (
+                        <div className="space-y-6">
+                            <h3 className="text-xl font-bold">{t.auditLogs}</h3>
+                            <div className="bg-white dark:bg-dark-card rounded-3xl border border-gray-200 dark:border-dark-border overflow-hidden">
+                                <table className="w-full text-right text-sm">
+                                    <thead className="bg-gray-50 dark:bg-dark-bg border-b border-gray-200 text-xs text-gray-400 uppercase">
+                                        <tr>
+                                            <th className="p-4">المسؤول</th>
+                                            <th className="p-4">النشاط / الإجراء</th>
+                                            <th className="p-4">التاريخ والوقت</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody className="divide-y divide-gray-100 dark:divide-dark-border">
+                                        {auditLogs.map(log => (
+                                            <tr key={log.id}>
+                                                <td className="p-4 font-bold text-emerald-600">{log.admin}</td>
+                                                <td className="p-4">{log.action}</td>
+                                                <td className="p-4 text-xs text-gray-400">{log.timestamp}</td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    )}
+                </div>
+            );
+        }
+
+        const root = ReactDOM.createRoot(document.getElementById('app'));
+        root.render(<App />);
+    </script>
+</body>
+</html>

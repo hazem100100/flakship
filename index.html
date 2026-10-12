@@ -37,11 +37,12 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Tajawal:wght@300;400;500;700;900&display=swap" rel="stylesheet">
     <!-- FontAwesome for icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- مكتبة Supabase السحابية -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         body {
             font-family: 'Tajawal', 'Inter', sans-serif;
         }
-        /* Custom scrollbars */
         ::-webkit-scrollbar {
             width: 8px;
             height: 8px;
@@ -69,6 +70,11 @@
 
     <script type="text/babel">
         const { useState, useEffect, useMemo } = React;
+
+        // --- إعدادات اتصال Supabase الخاصة بك ---
+        const SUPABASE_URL = 'https://bzvdioifiyrfpuoefcbu.supabase.co';
+        const SUPABASE_ANON_KEY = 'sb_publishable__X3RF9qMbYY3nBrVqGgEJA_2wcxuHo6';
+        const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
         // --- TRANSLATIONS DICTIONARY ---
         const translations = {
@@ -472,7 +478,7 @@
             currency: "ج.م",
             heroTitleAr: "اكتشف أحدث الهواتف الذكية والإلكترونيات الفاخرة",
             heroTitleEn: "Discover the Latest Flagship Smartphones & Tech",
-            heroSubtitleAr: "ضمان أصلي 100% مع توصيل سريع لجميع المحافظات والدفع عند الاستلاستعراض أو عبر واتساب",
+            heroSubtitleAr: "ضمان أصلي 100% مع توصيل سريع لجميع المحافظات والدفع عند الاستلام أو عبر واتساب",
             heroSubtitleEn: "100% Certified Warranty with Fast Delivery Across Egypt & WhatsApp Ordering"
         };
 
@@ -509,30 +515,13 @@
             const [activeTab, setActiveTab] = useState('storefront');
             const [selectedProduct, setSelectedProduct] = useState(null);
             
-            const [products, setProducts] = useState(() => {
-                const saved = localStorage.getItem('flk_products');
-                return saved ? JSON.parse(saved) : initialProducts;
-            });
-            const [categories, setCategories] = useState(() => {
-                const saved = localStorage.getItem('flk_categories');
-                return saved ? JSON.parse(saved) : initialCategories;
-            });
-            const [brands, setBrands] = useState(() => {
-                const saved = localStorage.getItem('flk_brands');
-                return saved ? JSON.parse(saved) : initialBrands;
-            });
-            const [settings, setSettings] = useState(() => {
-                const saved = localStorage.getItem('flk_settings');
-                return saved ? JSON.parse(saved) : initialSettings;
-            });
-            const [orders, setOrders] = useState(() => {
-                const saved = localStorage.getItem('flk_orders');
-                return saved ? JSON.parse(saved) : initialOrders;
-            });
-            const [auditLogs, setAuditLogs] = useState(() => {
-                const saved = localStorage.getItem('flk_audit');
-                return saved ? JSON.parse(saved) : initialAuditLogs;
-            });
+            const [products, setProducts] = useState(initialProducts);
+            const [categories, setCategories] = useState(initialCategories);
+            const [brands, setBrands] = useState(initialBrands);
+            const [settings, setSettings] = useState(initialSettings);
+            const [orders, setOrders] = useState(initialOrders);
+            const [auditLogs, setAuditLogs] = useState(initialAuditLogs);
+            const [isLoaded, setIsLoaded] = useState(false);
 
             const [cart, setCart] = useState(() => {
                 const saved = localStorage.getItem('flk_cart');
@@ -549,6 +538,50 @@
 
             const [adminRole, setAdminRole] = useState('Owner');
 
+            // --- جلب البيانات من سحابة Supabase عند فتح الموقع ---
+            useEffect(() => {
+                async function fetchCloudData() {
+                    try {
+                        const { data, error } = await supabaseClient
+                            .from('site_state')
+                            .select('content')
+                            .eq('id', 1)
+                            .single();
+
+                        if (data && data.content) {
+                            const cloud = data.content;
+                            if (cloud.products) setProducts(cloud.products);
+                            if (cloud.categories) setCategories(cloud.categories);
+                            if (cloud.brands) setBrands(cloud.brands);
+                            if (cloud.settings) setSettings(cloud.settings);
+                            if (cloud.orders) setOrders(cloud.orders);
+                            if (cloud.auditLogs) setAuditLogs(cloud.auditLogs);
+                        }
+                    } catch (err) {
+                        console.log("استخدام القيم الافتراضية حالياً");
+                    } finally {
+                        setIsLoaded(true);
+                    }
+                }
+                fetchCloudData();
+            }, []);
+
+            // --- حفظ البيانات تلقائياً في Supabase عند أي تعديل ---
+            useEffect(() => {
+                if (!isLoaded) return;
+                async function syncToCloud() {
+                    const payload = { products, categories, brands, settings, orders, auditLogs };
+                    try {
+                        await supabaseClient
+                            .from('site_state')
+                            .upsert({ id: 1, content: payload });
+                    } catch (err) {
+                        console.error("خطأ في المزامنة السحابية", err);
+                    }
+                }
+                syncToCloud();
+            }, [products, categories, brands, settings, orders, auditLogs, isLoaded]);
+
             useEffect(() => {
                 localStorage.setItem('flk_lang', lang);
                 document.documentElement.setAttribute('lang', lang);
@@ -564,12 +597,6 @@
                 }
             }, [theme]);
 
-            useEffect(() => { localStorage.setItem('flk_products', JSON.stringify(products)); }, [products]);
-            useEffect(() => { localStorage.setItem('flk_categories', JSON.stringify(categories)); }, [categories]);
-            useEffect(() => { localStorage.setItem('flk_brands', JSON.stringify(brands)); }, [brands]);
-            useEffect(() => { localStorage.setItem('flk_settings', JSON.stringify(settings)); }, [settings]);
-            useEffect(() => { localStorage.setItem('flk_orders', JSON.stringify(orders)); }, [orders]);
-            useEffect(() => { localStorage.setItem('flk_audit', JSON.stringify(auditLogs)); }, [auditLogs]);
             useEffect(() => { localStorage.setItem('flk_cart', JSON.stringify(cart)); }, [cart]);
             useEffect(() => { localStorage.setItem('flk_wishlist', JSON.stringify(wishlist)); }, [wishlist]);
             useEffect(() => { localStorage.setItem('flk_compare', JSON.stringify(compareList)); }, [compareList]);
@@ -1526,7 +1553,7 @@
                             </div>
                             <div>
                                 <h2 className="text-2xl font-black">{t.adminDashboard}</h2>
-                                <p className="text-xs text-emerald-600 font-bold">Flakship Store Secure Control Center</p>
+                                <p className="text-xs text-emerald-600 font-bold">Flakship Store Secure Control Center (Cloud Sync)</p>
                             </div>
                         </div>
                         <div className="flex items-center gap-4 w-full md:w-auto">
@@ -1724,7 +1751,7 @@
                                     <label className="block text-xs font-bold mb-1">عنوان المتجر</label>
                                     <input type="text" value={settings.address} onChange={(e) => setSettings({...settings, address: e.target.value})} className="w-full bg-gray-50 dark:bg-dark-bg border border-gray-200 rounded-xl p-3 text-sm" />
                                 </div>
-                                <button onClick={() => alert('تم حفظ الإعدادات بنجاح!')} className="px-6 py-3 bg-emerald-600 text-white font-bold rounded-xl text-xs">
+                                <button onClick={() => alert('تم حفظ الإعدادات ومزامنتها سحابياً بنجاح!')} className="px-6 py-3 bg-emerald-600 text-white font-bold rounded-xl text-xs">
                                     {t.save}
                                 </button>
                             </div>
